@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, My Love!</title>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <!-- Howler.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <!-- Swiper.js -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            overflow: hidden; /* Prevents scrollbars initially */
+            height: 100%;
+        }
+
+        .section {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .section.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 1;
+        }
+
+        #loading-screen { background-color: #ffc0cb; /* Pink */ }
+        #welcome-screen { background-color: #add8e6; /* Light Blue */ }
+        #balloon-screen { background-color: #90ee90; /* Light Green */ }
+        #gallery-screen { background-color: #fffacd; /* Lemon Chiffon */ }
+        #cake-screen { background-color: #ffdab9; /* Peach Puff */ }
+        #message-screen { background-color: #dda0dd; /* Plum */ }
+        #song-screen { background-color: #f0e68c; /* Khaki */ }
+        #final-screen { background-color: #e6e6fa; /* Lavender */ }
+
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #ff69b4; /* Hot Pink */
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #ff1493; /* Deep Pink */
+        }
+
+        /* Balloons */
+        .balloon-container {
+            position: relative;
+            width: 100%;
+            height: 80%; /* Adjust as needed */
+            overflow: hidden;
+        }
+        .balloon {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            background-color: red;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: white;
+            cursor: pointer;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+        }
+        .balloon::after { /* String */
+            content: '';
+            position: absolute;
+            bottom: -30px; /* Adjust based on balloon height */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 40px;
+            background: #555;
+        }
+
+
+        /* Gallery */
+        .swiper-container {
+            width: 80%;
+            max-width: 600px;
+            height: auto;
+            max-height: 70vh;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .swiper-slide img {
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            max-height: 65vh;
+        }
+        .swiper-slide p {
+            font-size: 1em;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        /* Cake */
+        #cake-container {
+            position: relative;
+            width: 200px; /* Adjust as needed */
+            height: 250px; /* Adjust as needed */
+        }
+        .cake-body {
+            width: 100%;
+            height: 150px;
+            background-color: #f2d7b6; /* Cake color */
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            bottom: 0;
+            border: 3px solid #d2b48c; /* Tan */
+        }
+        .icing {
+            width: 105%;
+            height: 40px;
+            background-color: #fff0f5; /* LavenderBlush for icing */
+            position: absolute;
+            top: -20px;
+            left: -2.5%;
+            border-radius: 50% / 20px;
+            border: 2px solid #ffc0cb;
+        }
+        .candle {
+            width: 10px;
+            height: 40px;
+            background-color: #fff; /* Candle color */
+            position: absolute;
+            top: -50px; /* Adjust based on icing */
+            border: 1px solid #ccc;
+        }
+        .flame {
+            width: 8px;
+            height: 15px;
+            background-color: orange;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            top: -12px; /* On top of candle */
+            left: 1px;
+            transform-origin: bottom center;
+        }
+        #candle1 { left: 30%; }
+        #candle2 { left: 50%; transform: translateX(-50%); }
+        #candle3 { left: 70%; transform: translateX(-100%);}
+
+        /* Message Section */
+        #typed-message {
+            font-size: 1.5em;
+            min-height: 100px; /* To avoid layout shift */
+            width: 80%;
+            max-width: 700px;
+            background: rgba(255,255,255,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            white-space: pre-wrap; /* Respect newlines in the message */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 0. Loading Screen -->
+    <div id="loading-screen" class="section active">
+        <h1>Preparing Your Surprise...</h1>
+        <p>Just a moment, my love!</p>
+        <div id="particles-js-loading"></div>
+    </div>
+
+    <!-- 1. Welcome Screen -->
+    <div id="welcome-screen" class="section">
+        <div id="particles-js-welcome"></div>
+        <h1 id="welcome-text">Happy Birthday, Mahi Ji!</h1>
+        <p>This is a little something I made just for you.</p>
+        <button onclick="nextSection()">Start Your Celebration!</button>
+    </div>
+
+    <!-- 2. Balloon Pop Screen -->
+    <div id="balloon-screen" class="section">
+        <h1>Pop Some Joy!</h1>
+        <p>Click the balloons to reveal some birthday cheer!</p>
+        <div class="balloon-container" id="balloon-field">
+            <!-- Balloons will be added here by JS -->
+        </div>
+        <button onclick="nextSection()">Next Surprise!</button>
+    </div>
+
+    <!-- 3. Photo Gallery Screen -->
+    <div id="gallery-screen" class="section">
+        <h1>Our Cherished Moments</h1>
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <!-- SLIDES WILL BE ADDED BY JS -->
+                <!-- Example Slide (replace with your actual photos) -->
+                <!--
+                <div class="swiper-slide">
+                    <img src="https://via.placeholder.com/600x400/FFC0CB/000000?Text=Our+First+Photo" alt="Memory 1">
+                    <p>Remember this day? So special!</p>
+                </div>
+                -->
+            </div>
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
+            <!-- Add Navigation -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+        <button onclick="nextSection()">Ready for Cake?</button>
+    </div>
+
+    <!-- 4. Cake Screen -->
+    <div id="cake-screen" class="section">
+        <h1>Make a Wish!</h1>
+        <div id="cake-container" onclick="blowOutCandles()">
+            <div class="cake-body">
+                <div class="icing"></div>
+            </div>
+            <div class="candle" id="candle1"><div class="flame" id="flame1"></div></div>
+            <div class="candle" id="candle2"><div class="flame" id="flame2"></div></div>
+            <div class="candle" id="candle3"><div class="flame" id="flame3"></div></div>
+        </div>
+        <p id="cake-message">Click the cake to blow out the candles!</p>
+        <button onclick="nextSection()" id="cake-next-button" style="display:none;">What's Next?</button>
+    </div>
+
+    <!-- 5. Personalized Message Screen -->
+    <div id="message-screen" class="section">
+        <h1>A Little Note For You</h1>
+        <div id="typed-message-container">
+            <p id="typed-message"></p>
+        </div>
+        <button onclick="nextSection()">One More Thing...</button>
+    </div>
+
+    <!-- 6. Song Screen -->
+    <div id="song-screen" class="section">
+        <h1>Our Special Song</h1>
+        <p>Let this play for you...</p>
+        <audio id="birthday-song" controls loop>
+            <!-- IMPORTANT: Replace with a direct link to an MP3 file -->
+            <source src="birthday.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <p id="song-title">Song: [Her Favorite Song / Your Song Title]</p>
+        <button onclick="nextSection()">The Grand Finale!</button>
+    </div>
+
+    <!-- 7. Final Screen -->
+    <div id="final-screen" class="section">
+        <h1>I Love You, [Girlfriend's Name]!</h1>
+        <p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.</p>
+        <p>With all my love,<br>[Your Name]</p>
+        <button onclick="replaySurprise()">Replay the Surprise?</button>
+    </div>
+
+    <script>
+        // --- CONFIGURATION - YOU MUST EDIT THIS SECTION ---
+        const girlfriendName = "My Sunshine"; // !!! REPLACE THIS !!!
+        const yourName = "Your Boo"; // !!! REPLACE THIS !!!
+
+        const photos = [
+            { src: "https://via.placeholder.com/600x400/FFC0CB/000000?Text=Memory+1", caption: "Our first amazing adventure!" },
+            { src: "https://via.placeholder.com/600x400/ADD8E6/000000?Text=Memory+2", caption: "That hilarious moment we shared." },
+            { src: "https://via.placeholder.com/600x400/90EE90/000000?Text=Memory+3", caption: "You looked so beautiful here." },
+            // Add more photos if you like
+        ];
+
+        const personalMessage = `Dearest ${girlfriendName},
+
+Every day with you feels like a celebration, but today is extra special.
+I wanted to create something unique to show you just how much you mean to me.
+
+Here are a few reasons why I adore you:
+- Your incredible smile that lights up my world.
+- Your kindness and compassion towards everyone.
+- The way you make me laugh even on tough days.
+- Your strength and determination.
+- Simply put, you make my life better in every single way.
+
+Happy Birthday, my love. I hope this little surprise brings a smile to your face.
+I can't wait to celebrate many more birthdays with you.
+
+All my love,
+${yourName}`;
+
+        const songURL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // !!! REPLACE WITH YOUR ACTUAL SONG URL !!!
+        const songTitle = "Her Favorite Song / Our Song"; // !!! REPLACE WITH ACTUAL SONG TITLE !!!
+
+        const balloonPopSoundURL = "https://www.soundjay.com/button/sounds/button-09.mp3"; // Replace with your preferred pop sound
+        const cheerSoundURL = "https://www.soundjay.com/human/sounds/applause-01.mp3"; // Replace with your preferred cheer sound
+        // --- END OF CONFIGURATION ---
+
+
+        let currentSection = 0;
+        const sections = document.querySelectorAll('.section');
+        let backgroundMusic;
+        let popSound;
+        let cheerSound;
+
+        // Initialize Sounds with Howler.js
+        function initSounds() {
+            if (songURL && songURL !== "birthday.mp3") {
+                backgroundMusic = new Howl({
+                    src: [songURL],
+                    loop: true,
+                    volume: 0.3, // Lower volume for background
+                    html5: true // Good for longer tracks
+                });
+            } else {
+                console.warn("Background music URL not set. Song will not play.");
+            }
+
+            if (balloonPopSoundURL) {
+                popSound = new Howl({ src: [balloonPopSoundURL], volume: 0.7 });
+            }
+            if (cheerSoundURL) {
+                cheerSound = new Howl({ src: [cheerSoundURL], volume: 0.8 });
+            }
+        }
+
+
+        // Particle Configurations
+        const tsParticlesConfig = {
+            fullScreen: { enable: false }, // We'll attach to specific divs
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: false, anim: { enable: false, speed: 1, opacity_min: 0.1, sync: false } },
+                size: { value: 3, random: true, anim: { enable: false, speed: 40, size_min: 0.1, sync: false } },
+                line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.4, width: 1 },
+                move: {
+                    enable: true, speed: 2, direction: "none", random: false, straight: false, out_mode: "out",
+                    attract: { enable: false, rotateX: 600, rotateY: 1200 }
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 400, line_opacity: 1 },
+                    bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
+                    repulse: { distance: 100, duration: 0.4 },
+                    push: { particles_nb: 4 },
+                    remove: { particles_nb: 2 }
+                }
+            },
+            retina_detect: true
+        };
+
+        const confettiConfig = {
+            fullScreen: { enable: false },
+            particles: {
+                number: { value: 0 }, // Start with 0, emit on demand
+                color: {
+                    value: ["#FFC0CB", "#FF69B4", "#FF1493", "#DB7093", "#ADD8E6", "#87CEEB"]
+                },
+                shape: {
+                    type: "confetti", // Requires confetti shape plugin if not built-in
+                     options: {
+                        confetti: { // Specific options for confetti if needed
+                            type: ["circle", "square", "triangle", "star"]
+                        }
+                    }
+                },
+                opacity: { value: { min: 0.5, max: 1 }, animation: { enable: true, speed: 2, minimumValue: 0, sync: false, destroy: "life" } },
+                size: { value: { min: 2, max: 8 } },
+                life: {
+                    duration: {
+                        sync: true,
+                        value: 3 // seconds
+                    },
+                    count: 1 // emit once
+                },
+                move: {
+                    enable: true,
+                    gravity: { enable: true, acceleration: 20 },
+                    speed: {min: 10, max: 30},
+                    decay: 0.05,
+                    direction: "top", // Emit upwards initially
+                    random: true,
+                    straight: false,
+                    outModes: {
+                        default: "destroy",
+                        top: "none"
+                    }
+                },
+                rotate: {
+                    value: { min: 0, max: 360 },
+                    direction: "random",
+                    animation: { enable: true, speed: 60 }
+                },
+                 tilt: {
+                    direction: "random",
+                    enable: true,
+                    value: {min: 0, max: 360},
+                    animation: {enable: true, speed: 60}
+                },
+                roll: { // For 3D-like rotation
+                    darken: { enable: true, value: 25 },
+                    enable: true,
+                    speed: { min: 15, max: 25 }
+                },
+                wobble: { // For a more dynamic fall
+                    distance: 30,
+                    enable: true,
+                    speed: {min: -15, max: 15}
+                }
+            },
+            emitters: { // We'll use manual emit for confetti
+                position: { x: 50, y: 50 },
+                rate: { quantity: 100, delay: 0.1 }, // Emit 100 particles
+                life: { duration: 0.1, count: 1 } // Emitter lasts for 0.1s, emits once
+            }
+        };
+
+
+        function showSection(index) {
+            sections.forEach((section, i) => {
+                if (i === index) {
+                    section.classList.add('active');
+                    gsap.fromTo(section, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out" });
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+
+            // Special actions for specific sections
+            if (index === 0) { // Loading screen
+                 tsParticles.load("particles-js-loading", {
+                    ...tsParticlesConfig,
+                    particles: {...tsParticlesConfig.particles, color: {value: "#FFF"}, line_linked: { color: "#FFF" } }
+                });
+            }
+            if (index === 1) { // Welcome screen
+                gsap.from("#welcome-text", { opacity: 0, scale: 0.5, duration: 1, delay: 0.5, ease: "elastic.out(1, 0.5)" });
+                tsParticles.load("particles-js-welcome", tsParticlesConfig); // Welcome particles
+                 if (backgroundMusic && !backgroundMusic.playing()) {
+                    backgroundMusic.play();
+                }
+            }
+            if (index === 2) { // Balloon screen
+                createBalloons(10); // Create 10 balloons
+            }
+            if (index === 4) { // Cake screen
+                animateFlames();
+            }
+            if (index === 5) { // Message screen
+                typeMessage(personalMessage, 'typed-message');
+            }
+            if (index === 6 && backgroundMusic && !backgroundMusic.playing()) { // Song screen
+                 backgroundMusic.play(); // Ensure it's playing if navigated here directly
+            }
+        }
+
+        function nextSection() {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(currentSection);
+            }
+        }
+
+        function replaySurprise() {
+            currentSection = 0; // Go back to welcome, skip loading
+             if (backgroundMusic && backgroundMusic.playing()) {
+                backgroundMusic.stop(); // Stop music to restart it on welcome
+            }
+            // Reset cake
+            document.querySelectorAll('.flame').forEach(flame => flame.style.display = 'block');
+            document.getElementById('cake-message').textContent = "Click the cake to blow out the candles!";
+            document.getElementById('cake-next-button').style.display = 'none';
+
+            showSection(1); // Show welcome screen
+        }
+
+        // Balloon Logic
+        function createBalloons(count) {
+            const container = document.getElementById('balloon-field');
+            container.innerHTML = ''; // Clear old balloons
+            const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#6A5ACD', '#FF69B4'];
+            for (let i = 0; i < count; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.style.backgroundColor = colors[i % colors.length];
+                balloon.style.left = `${Math.random() * 85}%`; // Keep within bounds
+                balloon.style.bottom = `-${Math.random() * 100 + 50}px`; // Start off-screen from bottom
+
+                balloon.addEventListener('click', () => popBalloon(balloon));
+
+                container.appendChild(balloon);
+
+                gsap.to(balloon, {
+                    y: `-${window.innerHeight * 0.8 + Math.random() * 100}`, // Float up
+                    x: `${(Math.random() - 0.5) * 100}`, // Gentle sway
+                    rotation: `${(Math.random() - 0.5) * 30}`,
+                    duration: Math.random() * 5 + 5, // Random duration
+                    ease: "sine.inOut",
+                    repeat: -1,
+                    yoyo: true,
+                    delay: Math.random() * 2
+                });
+            }
+        }
+
+        function popBalloon(balloon) {
+            if (popSound) popSound.play();
+            // Trigger confetti at balloon position
+            const rect = balloon.getBoundingClientRect();
+            const confettiEmitter = {
+                ...confettiConfig.emitters,
+                position: {
+                    x: (rect.left + rect.width / 2) * 100 / window.innerWidth,
+                    y: (rect.top + rect.height / 2) * 100 / window.innerHeight
+                }
+            };
+            tsParticles.load({ particles: confettiConfig.particles, emitters: confettiEmitter });
+
+            gsap.to(balloon, {
+                scale: 0,
+                opacity: 0,
+                duration: 0.3,
+                onComplete: () => balloon.remove()
+            });
+        }
+
+        // Cake Logic
+        function animateFlames() {
+            document.querySelectorAll('.flame').forEach(flame => {
+                gsap.to(flame, {
+                    scaleY: 1.1,
+                    scaleX: 1.05,
+                    skewX: "random(-5, 5)",
+                    duration: "random(0.2, 0.5)",
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            });
+        }
+        let candlesBlownOut = false;
+        function blowOutCandles() {
+            if (candlesBlownOut) return;
+            candlesBlownOut = true;
+
+            if (cheerSound) cheerSound.play();
+            document.querySelectorAll('.flame').forEach(flame => {
+                gsap.to(flame, { opacity: 0, duration: 0.5, onComplete: () => flame.style.display = 'none' });
+            });
+            document.getElementById('cake-message').textContent = "Woohoo! Happy Birthday!";
+
+            // Confetti from cake center
+            const cakeRect = document.getElementById('cake-container').getBoundingClientRect();
+             const confettiEmitter = {
+                ...confettiConfig.emitters,
+                 position: {
+                    x: (cakeRect.left + cakeRect.width / 2) * 100 / window.innerWidth,
+                    y: (cakeRect.top + cakeRect.height/4) * 100 / window.innerHeight // Near top of cake
+                },
+                rate: { quantity: 200, delay: 0.05 }, // More confetti for cake
+            };
+            tsParticles.load({ particles: confettiConfig.particles, emitters: confettiEmitter });
+
+            gsap.to("#cake-next-button", { display: 'inline-block', opacity: 1, duration: 0.5, delay: 1 });
+        }
+
+        // Typewriter effect
+        function typeMessage(message, elementId, speed = 50) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = ""; // Clear previous message
+            let i = 0;
+            function type() {
+                if (i < message.length) {
+                    element.innerHTML += message.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+
+        // Initialize Swiper
+        function initSwiper() {
+            const swiperWrapper = document.querySelector('#gallery-screen .swiper-wrapper');
+            swiperWrapper.innerHTML = ''; // Clear existing slides
+
+            photos.forEach(photo => {
+                const slide = document.createElement('div');
+                slide.classList.add('swiper-slide');
+                const img = document.createElement('img');
+                img.src = photo.src;
+                img.alt = photo.caption;
+                const caption = document.createElement('p');
+                caption.textContent = photo.caption;
+                slide.appendChild(img);
+                slide.appendChild(caption);
+                swiperWrapper.appendChild(slide);
+            });
+
+            new Swiper('.swiper-container', {
+                loop: true,
+                grabCursor: true,
+                effect: 'cube', // Try 'coverflow', 'flip', 'cube'
+                cubeEffect: {
+                    shadow: true,
+                    slideShadows: true,
+                    shadowOffset: 20,
+                    shadowScale: 0.94,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false,
+                },
+            });
+        }
+
+
+        // Initialization on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update dynamic content
+            // document.querySelectorAll('[Girlfriend\'s Name]').forEach(el => el.textContent = el.textContent.replace('[Girlfriend\'s Name]', girlfriendName));
+            // document.querySelectorAll('[Your Name]').forEach(el => el.textContent = el.textContent.replace('[Your Name]', yourName));
+            document.getElementById('welcome-text').textContent = `Happy Birthday, ${girlfriendName}!`;
+            document.querySelector('#final-screen h1').textContent = `I Love You, ${girlfriendName}!`;
+            document.querySelector('#final-screen p:nth-of-type(2)').innerHTML = `With all my love,<br>${yourName}`;
+
+
+            if (document.getElementById('birthday-song')) {
+                document.getElementById('birthday-song').src = songURL;
+            }
+            if(document.getElementById('song-title')) {
+                document.getElementById('song-title').textContent = `Song: ${songTitle}`;
+            }
+
+
+            initSounds();
+            initSwiper();
+
+
+            // Hide loading screen after a delay and show first real section
+            setTimeout(() => {
+                 // Stop loading particles if any
+                const loadingParticles = tsParticles.dom().find(p => p.sourceOptions.id === "particles-js-loading");
+                if (loadingParticles) loadingParticles.destroy();
+
+                currentSection = 1; // Start at welcome screen
+                showSection(currentSection);
+            }, 3000); // Adjust loading time as needed
+        });
+
+    </script>
+</body>
+</html>
