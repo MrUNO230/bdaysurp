@@ -67,7 +67,6 @@
         #gallery-screen { background-color: #fffacd; }
         #cake-screen { background-color: #ffdab9; }
         #message-screen { background-color: #dda0dd; }
-        /* No #song-screen style needed, as it's removed */
         #final-screen { background-color: #e6e6fa; }
 
         h1 { font-size: 3em; color: #ff69b4; margin-bottom: 20px; }
@@ -96,9 +95,23 @@
             display: block;
         }
         
+        #message-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 5vh;
+            padding-bottom: 5vh;
+            box-sizing: border-box;
+        }
+        
+        #message-screen h1 {
+            flex-shrink: 0;
+            margin-bottom: 15px;
+        }
+
         #typed-message-container { 
             font-size: 1.5em; 
-            min-height: 100px; 
             width: 80%; 
             max-width: 700px; 
             background: rgba(255,255,255,0.7); 
@@ -109,10 +122,16 @@
 
             flex-grow: 1;
             flex-shrink: 1;
+            min-height: 0;
             overflow-y: auto;
             max-height: 60vh;
-            margin-top: 20px;
-            margin-bottom: 20px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        #message-screen button {
+            flex-shrink: 0;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -126,7 +145,8 @@
         <div id="particles-js-welcome" class="particle-background-container"></div>
         <h1 id="welcome-text">[Girlfriend's Name]!</h1>
         <p>This is a little something I made just for you.</p>
-        <button onclick="nextSection()">Start Your Celebration!</button>
+        <!-- MODIFIED: Call new function on click to initiate music -->
+        <button onclick="startCelebrationAndPlayMusic()">Start Your Celebration!</button>
     </div>
 
     <div id="balloon-screen" class="section">
@@ -152,16 +172,11 @@
         <button onclick="nextSection()">One More Thing...</button>
     </div>
 
-    <!-- REMOVED: Song Screen HTML element -->
-    <!-- The Howler.js library handles background audio playback directly in JS, no need for a visible HTML audio element -->
-
     <div id="final-screen" class="section"><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
 
     <script>
-        // Global variable to hold the p5.js instance
         let myP5Instance;
 
-        // The p5.js sketch logic, wrapped in a function
         const cakeSketch = function(p) {
             let cakeState;
             let candles = [];
@@ -248,7 +263,7 @@
               candles = []; slice.active = false; slice.animProgress = 0;
               knife.visible = false; knife.animationProgress = 0; knife.cutStep = 1; knife.delayTimer = 0;
 
-              isoOrigin = p.createVector(p.width/2, p.height/2.2);
+              isoOrigin = p.createVector(p.width/2, p.height / 1.5); // Adjusted for mobile centering
 
               cake.color = p.color(240,220,180); cake.frostingColor = p.color(255,192,203); cake.topFrostingColor = p.color(255,230,235);
 
@@ -338,7 +353,7 @@
             };
 
             p.draw = function() {
-              p.background(255, 218, 185); // Matches #ffdab9
+              p.background(255, 218, 185);
               p.handleStates();
 
               p.drawIsoCakeSides(cake);
@@ -677,8 +692,6 @@
             };
         };
     </script>
-    <!-- END OF P5.JS SCRIPT -->
-
     <script>
         // --- CONFIGURATION ---
         const girlfriendName = "My Sunshine";
@@ -689,8 +702,7 @@
             { src: "b3.png", caption: "You looked so beautiful here." },
         ];
         const personalMessage = `Dearest ${girlfriendName},\n\nEvery day with you feels like a celebration, but today is extra special.\nI wanted to create something unique to show you just how much you mean to me.\n\nHere are a few reasons why I adore you:\n- Your incredible smile that lights up my world.\n- Your kindness and compassion towards everyone.\n- The way you make me laugh even on tough days.\n- Your strength and determination.\n- Simply put, you make my life better in every single way.\n\nHappy Birthday, my love. I hope this little surprise brings a smile to your face.\nI can't wait to celebrate many more birthdays with you.\n\nAll my love,\n${yourName}`;
-        const songURL = "birthday.mp3"; // RE-ADDED: Song URL
-        const songTitle = "Our Special Song"; // RE-ADDED: Song Title
+        const songURL = "birthday.mp3";
         const balloonPopSoundURL = "button-09.mp3";
         const cheerSoundURL = "applause-01.mp3";
         // --- END OF CONFIGURATION ---
@@ -705,8 +717,7 @@
 
         function initSounds() {
             console.log("Initializing sounds...");
-            // Initializing background music using Howler.js
-            if (songURL) { // Only initialize if songURL is provided
+            if (songURL) {
                 backgroundMusic = new Howl({ src: [songURL], loop: true, volume: 0.3, html5: true });
                 console.log("Background music Howl object created.");
             } else {
@@ -820,11 +831,7 @@
             if (index === 1) { // Welcome Screen
                 console.log("Setting up Welcome Screen (section 1)");
                 gsap.from("#welcome-text", { opacity: 0, scale: 0.5, duration: 1, delay: 0.5, ease: "elastic.out(1, 0.5)" });
-                // Play background music when welcome screen appears
-                if (backgroundMusic && !backgroundMusic.playing()) {
-                    console.log("Attempting to play background music.");
-                    backgroundMusic.play();
-                }
+                // Music playback is now handled by startCelebrationAndPlayMusic() on the button click
                 console.log("Welcome Screen (section 1) JS setup logic complete.");
             }
             if (index === 2) {
@@ -832,14 +839,21 @@
                 createBalloons(10);
             }
             if (index === 5) { typeMessage(personalMessage, 'typed-message'); }
-            // No index === 6 check anymore for song screen.
+        }
+
+        // NEW FUNCTION: To ensure music plays on the very first user interaction
+        function startCelebrationAndPlayMusic() {
+            console.log("startCelebrationAndPlayMusic called.");
+            if (backgroundMusic && !backgroundMusic.playing()) {
+                backgroundMusic.play();
+                console.log("Background music started by user interaction.");
+            }
+            nextSection(); // Proceed to the next section
         }
 
         function nextSection() {
             console.log(`nextSection called. currentSection: ${currentSection}`);
-            // Index logic needs to be updated after song screen removal
-            // Old: 0->1->2->3->4->5->6(song)->7(final)
-            // New: 0->1->2->3->4->5->6(final)
+            // Removed conditional music play here, it's handled by startCelebrationAndPlayMusic()
             if (currentSection < sections.length - 1) {
                 currentSection++;
                 showSection(currentSection);
@@ -1000,10 +1014,7 @@
             document.querySelector('#final-screen h1').textContent = `I Love You, ${girlfriendName}!`;
             document.querySelector('#final-screen p:nth-of-type(2)').innerHTML = `With all my love,<br>${yourName}`;
 
-            // Removed `birthdaySongElement` and `songTitleElement` references as they are not needed for Howler.js
-            // The Howler.js `backgroundMusic` object is initialized via initSounds()
-
-            initSounds(); // This will now initialize backgroundMusic if songURL is set
+            initSounds();
             initSwiper();
             console.log("Initial sounds and swiper initialized.");
 
@@ -1047,4 +1058,3 @@
     </script>
 </body>
 </html>
-
