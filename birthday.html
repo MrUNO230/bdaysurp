@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy Birthday, My Love!</title>
-    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- tsParticles -->
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
-    <!-- Howler.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-    <!-- Swiper.js -->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js"></script>
 
     <style>
         body, html {
@@ -21,7 +18,7 @@
             font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
             color: #333;
-            overflow: hidden; /* Prevents scrollbars initially */
+            overflow: hidden;
             height: 100%;
         }
 
@@ -38,245 +35,115 @@
             left: 0;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
             background-size: cover;
             background-position: center;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        .section.active {
-            opacity: 1;
-            visibility: visible;
-            z-index: 1;
-        }
-
-        #loading-screen { background-color: #ffc0cb; /* Pink */ }
-        #welcome-screen { background-color: #add8e6; /* Light Blue */ }
-        #balloon-screen { background-color: #90ee90; /* Light Green */ }
-        #gallery-screen { background-color: #fffacd; /* Lemon Chiffon */ }
-        #cake-screen { background-color: #ffdab9; /* Peach Puff */ }
-        #message-screen { background-color: #dda0dd; /* Plum */ }
-        #song-screen { background-color: #f0e68c; /* Khaki */ }
-        #final-screen { background-color: #e6e6fa; /* Lavender */ }
-
-
-        #particles-js {
+        .particle-background-container {
             position: absolute;
             width: 100%;
             height: 100%;
             top: 0;
             left: 0;
-            z-index: -1;
+            z-index: 0;
         }
 
-        h1 {
-            font-size: 3em;
-            color: #ff69b4; /* Hot Pink */
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 1.2em;
-            line-height: 1.6;
-        }
-
-        button {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            background-color: #ff69b4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #ff1493; /* Deep Pink */
-        }
-
-        /* Balloons */
-        .balloon-container {
+        .section h1,
+        .section p,
+        .section button {
             position: relative;
-            width: 100%;
-            height: 80%; /* Adjust as needed */
-            overflow: hidden;
+            z-index: 1;
         }
-        .balloon {
-            position: absolute;
-            width: 80px;
-            height: 100px;
-            background-color: red;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+
+        .section.active {
+            z-index: 1;
+        }
+
+        #loading-screen { background-color: #ffc0cb; }
+        #welcome-screen { background-color: #add8e6; }
+        #balloon-screen { background-color: #90ee90; }
+        #gallery-screen { background-color: #fffacd; }
+        #cake-screen { background-color: #ffdab9; }
+        #message-screen { background-color: #dda0dd; }
+        /* No #song-screen style needed, as it's removed */
+        #final-screen { background-color: #e6e6fa; }
+
+        h1 { font-size: 3em; color: #ff69b4; margin-bottom: 20px; }
+        p { font-size: 1.2em; line-height: 1.6; }
+        button { padding: 15px 30px; font-size: 1.2em; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; transition: background-color 0.3s ease; }
+        button:hover { background-color: #ff1493; }
+        .balloon-container { position: relative; width: 100%; height: 80%; overflow: hidden; }
+        .balloon { position: absolute; width: 80px; height: 100px; background-color: red; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; color: white; cursor: pointer; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2); }
+        .balloon::after { content: ''; position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); width: 2px; height: 40px; background: #555; }
+        .swiper-container { width: 80%; max-width: 600px; height: auto; max-height: 70vh; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.2); }
+        .swiper-slide img { display: block; width: 100%; height: auto; object-fit: contain; max-height: 65vh; }
+        .swiper-slide p { font-size: 1em; color: #555; margin-top: 10px; }
+        
+        #cake-container { 
+            position: relative; 
+            width: 80vmin;
+            max-width: 450px;
+            height: 60vmin;
+            max-height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8em;
-            color: white;
-            cursor: pointer;
-            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
         }
-        .balloon::after { /* String */
-            content: '';
-            position: absolute;
-            bottom: -30px; /* Adjust based on balloon height */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 40px;
-            background: #555;
-        }
-
-
-        /* Gallery */
-        .swiper-container {
-            width: 80%;
-            max-width: 600px;
-            height: auto;
-            max-height: 70vh;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-        }
-        .swiper-slide img {
+        canvas {
             display: block;
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            max-height: 65vh;
         }
-        .swiper-slide p {
-            font-size: 1em;
-            color: #555;
-            margin-top: 10px;
-        }
+        
+        #typed-message-container { 
+            font-size: 1.5em; 
+            min-height: 100px; 
+            width: 80%; 
+            max-width: 700px; 
+            background: rgba(255,255,255,0.7); 
+            padding: 20px; 
+            border-radius: 10px; 
+            white-space: pre-wrap;
+            box-sizing: border-box;
 
-        /* Cake */
-        #cake-container {
-            position: relative;
-            width: 200px; /* Adjust as needed */
-            height: 250px; /* Adjust as needed */
-        }
-        .cake-body {
-            width: 100%;
-            height: 150px;
-            background-color: #f2d7b6; /* Cake color */
-            border-radius: 10px 10px 0 0;
-            position: absolute;
-            bottom: 0;
-            border: 3px solid #d2b48c; /* Tan */
-        }
-        .icing {
-            width: 105%;
-            height: 40px;
-            background-color: #fff0f5; /* LavenderBlush for icing */
-            position: absolute;
-            top: -20px;
-            left: -2.5%;
-            border-radius: 50% / 20px;
-            border: 2px solid #ffc0cb;
-        }
-        .candle {
-            width: 10px;
-            height: 40px;
-            background-color: #fff; /* Candle color */
-            position: absolute;
-            top: -50px; /* Adjust based on icing */
-            border: 1px solid #ccc;
-        }
-        .flame {
-            width: 8px;
-            height: 15px;
-            background-color: orange;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            position: absolute;
-            top: -12px; /* On top of candle */
-            left: 1px;
-            transform-origin: bottom center;
-        }
-        #candle1 { left: 30%; }
-        #candle2 { left: 50%; transform: translateX(-50%); }
-        #candle3 { left: 70%; transform: translateX(-100%);}
-
-        /* Message Section */
-        #typed-message {
-            font-size: 1.5em;
-            min-height: 100px; /* To avoid layout shift */
-            width: 80%;
-            max-width: 700px;
-            background: rgba(255,255,255,0.7);
-            padding: 20px;
-            border-radius: 10px;
-            white-space: pre-wrap; /* Respect newlines in the message */
+            flex-grow: 1;
+            flex-shrink: 1;
+            overflow-y: auto;
+            max-height: 60vh;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-
-    <!-- 0. Loading Screen -->
     <div id="loading-screen" class="section active">
-        <h1>Preparing Your Surprise...</h1>
+        <h1>Preparing Your Birthday Surprise!</h1>
         <p>Just a moment, my love!</p>
-        <div id="particles-js-loading"></div>
+       <div id="particles-js-loading" class="particle-background-container"></div>
     </div>
-
-    <!-- 1. Welcome Screen -->
     <div id="welcome-screen" class="section">
-        <div id="particles-js-welcome"></div>
-        <h1 id="welcome-text">Happy Birthday, Mahi Ji!</h1>
+        <div id="particles-js-welcome" class="particle-background-container"></div>
+        <h1 id="welcome-text">[Girlfriend's Name]!</h1>
         <p>This is a little something I made just for you.</p>
         <button onclick="nextSection()">Start Your Celebration!</button>
     </div>
 
-    <!-- 2. Balloon Pop Screen -->
     <div id="balloon-screen" class="section">
         <h1>Pop Some Joy!</h1>
         <p>Click the balloons to reveal some birthday cheer!</p>
-        <div class="balloon-container" id="balloon-field">
-            <!-- Balloons will be added here by JS -->
-        </div>
-        <button onclick="nextSection()">Next Surprise!</button>
+        <div class="balloon-container" id="balloon-field"></div>
     </div>
 
-    <!-- 3. Photo Gallery Screen -->
-    <div id="gallery-screen" class="section">
-        <h1>Our Cherished Moments</h1>
-        <div class="swiper-container">
-            <div class="swiper-wrapper">
-                <!-- SLIDES WILL BE ADDED BY JS -->
-                <!-- Example Slide (replace with your actual photos) -->
-                <!--
-                <div class="swiper-slide">
-                    <img src="https://via.placeholder.com/600x400/FFC0CB/000000?Text=Our+First+Photo" alt="Memory 1">
-                    <p>Remember this day? So special!</p>
-                </div>
-                -->
-            </div>
-            <!-- Add Pagination -->
-            <div class="swiper-pagination"></div>
-            <!-- Add Navigation -->
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-        </div>
-        <button onclick="nextSection()">Ready for Cake?</button>
-    </div>
-
-    <!-- 4. Cake Screen -->
+    <div id="gallery-screen" class="section"><h1>Our Cherished Moments</h1><div class="swiper-container"><div class="swiper-wrapper"></div><div class="swiper-pagination"></div><div class="swiper-button-next"></div><div class="swiper-button-prev"></div></div><button onclick="nextSection()">Ready for Cake?</button></div>
+    
     <div id="cake-screen" class="section">
         <h1>Make a Wish!</h1>
-        <div id="cake-container" onclick="blowOutCandles()">
-            <div class="cake-body">
-                <div class="icing"></div>
-            </div>
-            <div class="candle" id="candle1"><div class="flame" id="flame1"></div></div>
-            <div class="candle" id="candle2"><div class="flame" id="flame2"></div></div>
-            <div class="candle" id="candle3"><div class="flame" id="flame3"></div></div>
-        </div>
+        <div id="cake-container"></div> 
         <p id="cake-message">Click the cake to blow out the candles!</p>
         <button onclick="nextSection()" id="cake-next-button" style="display:none;">What's Next?</button>
     </div>
 
-    <!-- 5. Personalized Message Screen -->
     <div id="message-screen" class="section">
         <h1>A Little Note For You</h1>
         <div id="typed-message-container">
@@ -285,434 +152,899 @@
         <button onclick="nextSection()">One More Thing...</button>
     </div>
 
-    <!-- 6. Song Screen -->
-    <div id="song-screen" class="section">
-        <h1>Our Special Song</h1>
-        <p>Let this play for you...</p>
-        <audio id="birthday-song" controls loop>
-            <!-- IMPORTANT: Replace with a direct link to an MP3 file -->
-            <source src="birthday.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-        <p id="song-title">Song: [Her Favorite Song / Your Song Title]</p>
-        <button onclick="nextSection()">The Grand Finale!</button>
-    </div>
+    <!-- REMOVED: Song Screen HTML element -->
+    <!-- The Howler.js library handles background audio playback directly in JS, no need for a visible HTML audio element -->
 
-    <!-- 7. Final Screen -->
-    <div id="final-screen" class="section">
-        <h1>I Love You, [Girlfriend's Name]!</h1>
-        <p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.</p>
-        <p>With all my love,<br>[Your Name]</p>
-        <button onclick="replaySurprise()">Replay the Surprise?</button>
-    </div>
+    <div id="final-screen" class="section"><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
 
     <script>
-        // --- CONFIGURATION - YOU MUST EDIT THIS SECTION ---
-        const girlfriendName = "My Sunshine"; // !!! REPLACE THIS !!!
-        const yourName = "Your Boo"; // !!! REPLACE THIS !!!
+        // Global variable to hold the p5.js instance
+        let myP5Instance;
 
+        // The p5.js sketch logic, wrapped in a function
+        const cakeSketch = function(p) {
+            let cakeState;
+            let candles = [];
+            let numCandles = 5;
+
+            let isoOrigin;
+            const isoScale = 25;
+            const Y_ISO_SCALE = 0.9;
+            const angle = p.PI / 6;
+            const cosAngle = p.cos(angle);
+            const sinAngle = p.sin(angle);
+
+            let cake = {
+              pos: { x: 0, y: 0, z: 0 }, radius: 4.5, height: 2.2,
+              color: null, frostingColor: null, topFrostingColor: null, decorations: [], sprinkles: []
+            };
+            const FROSTING_PIPE_RADIUS = 0.3;
+
+            let knife = {
+              screenPos: null, screenAngle: 0, visible: false, animationProgress: 0,
+              cutStep: 1,
+              startScreenPos_Overall: null,
+              currentCutTargetScreenPos_Above: null,
+              currentCutTargetScreenPos_Down: null,
+              bladeLengthScreen: 100, bladeHeightScreen: 20,
+              handleLengthScreen: 60, handleWidthScreen: 15,
+              delayTimer: 0, delayDuration: 30
+            };
+
+            let slice = {
+              active: false, currentPos3D: null, startPos3D: null, targetPos3D: null,
+              currentRotation3D_Y: 0, targetRotation3D_Y: 0, animProgress: 0,
+              angleStart: 0, angleEnd: 0,
+            };
+
+            let knifeAnimationStartPos;
+            let knifeAnimationStartAngle;
+            let knifeTargetScreenAngle;
+
+            p.p5CakeStateChange = function(newState) {
+                cakeState = newState;
+                console.log("p5.js state changed to:", newState);
+            };
+
+            p.project3D = function(worldX, worldY, worldZ) {
+              let screenX = isoOrigin.x + (worldX - worldZ) * cosAngle * isoScale;
+              let screenY = isoOrigin.y + (worldX + worldZ) * sinAngle * isoScale - worldY * Y_ISO_SCALE * isoScale;
+              return p.createVector(screenX, screenY);
+            };
+
+            p.lerp3D = function(v1, v2, amt) {
+                return { x: p.lerp(v1.x,v2.x,amt), y: p.lerp(v1.y,v2.y,amt), z: p.lerp(v1.z,v2.z,amt) };
+            };
+
+            p.calculateKnifeCutPositions = function(cutAngle) {
+                let world_x_on_edge = cake.pos.x + cake.radius * p.cos(cutAngle);
+                let world_z_on_edge = cake.pos.z + cake.radius * p.sin(cutAngle);
+                
+                let world_x_mid_line = (cake.pos.x + world_x_on_edge) / 2;
+                let world_z_mid_line = (cake.pos.z + world_z_on_edge) / 2;
+
+                let world_y_top = cake.pos.y + cake.height;
+                let world_y_bottom = cake.pos.y;
+
+                let P_cut_top_mid_screen = p.project3D(world_x_mid_line, world_y_top, world_z_mid_line);
+                let P_cut_bottom_mid_screen = p.project3D(world_x_mid_line, world_y_bottom, world_z_mid_line);
+
+                let screen_pos_above = p.createVector(P_cut_top_mid_screen.x, P_cut_top_mid_screen.y - 10);
+                let screen_pos_down = p.createVector(P_cut_top_mid_screen.x, P_cut_bottom_mid_screen.y - knife.bladeHeightScreen + 10);
+
+                return { screen_pos_above, screen_pos_down };
+            };
+
+            p.calculateKnifeScreenAngle = function(worldAngle) {
+                let P_center = p.project3D(cake.pos.x, cake.pos.y + cake.height, cake.pos.z);
+                let P_edge = p.project3D(cake.pos.x + cake.radius * p.cos(worldAngle), cake.pos.y + cake.height, cake.pos.z + cake.radius * p.sin(worldAngle));
+                return p.atan2(P_edge.y - P_center.y, P_edge.x - P_center.x);
+            };
+
+            p.isAngleInSliceRange = function(decoAngle,sliceStart,sliceEnd){let sa_norm=(sliceStart%p.TWO_PI+p.TWO_PI)%p.TWO_PI,se_norm=(sliceEnd%p.TWO_PI+p.TWO_PI)%p.TWO_PI,da_norm=(decoAngle%p.TWO_PI+p.TWO_PI)%p.TWO_PI;if(sa_norm<=se_norm)return(da_norm>=sa_norm&&da_norm<=se_norm);else return(da_norm>=sa_norm||da_norm<=se_norm);}
+
+            p.initializeCakeAndElements = function() {
+              cakeState = 'IDLE_LIT';
+              candles = []; slice.active = false; slice.animProgress = 0;
+              knife.visible = false; knife.animationProgress = 0; knife.cutStep = 1; knife.delayTimer = 0;
+
+              isoOrigin = p.createVector(p.width/2, p.height/2.2);
+
+              cake.color = p.color(240,220,180); cake.frostingColor = p.color(255,192,203); cake.topFrostingColor = p.color(255,230,235);
+
+              let candleWorldHeight = 1.2, candleRadius = 0.15;
+              for (let i=0; i<numCandles; ++i) {
+                let angleOnCake = (p.TWO_PI/numCandles)*i;
+                let placementRadius = cake.radius*0.65;
+                candles.push({
+                  pos3D: {x:cake.pos.x+placementRadius*p.cos(angleOnCake), y:cake.pos.y+cake.height, z:cake.pos.z+placementRadius*p.sin(angleOnCake)},
+                  radius:candleRadius, height:candleWorldHeight, isLit:true, flameFlickerOffset:p.random(p.TWO_PI),
+                  flameSize:p.random(0.4,0.6)*isoScale, color:p.color(255,250,240), angleOnCake:angleOnCake
+                });
+              }
+              
+              const fixedSliceMidAngle = p.PI / 4; 
+              const mainSliceAngularWidth = p.PI / 3.5; 
+              slice.angleStart = (fixedSliceMidAngle - mainSliceAngularWidth / 2 + p.TWO_PI) % p.TWO_PI;
+              slice.angleEnd = (fixedSliceMidAngle + mainSliceAngularWidth / 2 + p.TWO_PI) % p.TWO_PI;
+
+              cake.decorations = [];
+              let numOuterPipes = 24;
+              for (let i=0; i<numOuterPipes; ++i) {
+                let decoAngle = p.TWO_PI/numOuterPipes*i;
+                cake.decorations.push({
+                  pos3D: {x:cake.pos.x+cake.radius*p.cos(decoAngle), y:cake.pos.y+cake.height, z:cake.pos.z+cake.radius*p.sin(decoAngle)},
+                  radius:FROSTING_PIPE_RADIUS, originalAngleOnCake:decoAngle
+                });
+              }
+
+              let numInnerPipes = 12;
+              let innerPipeRadius = cake.radius * 0.75;
+              for (let i=0; i<numInnerPipes; ++i) {
+                let decoAngle = (p.TWO_PI/numInnerPipes)*i + p.PI/12;
+                cake.decorations.push({
+                  pos3D: {x:cake.pos.x+innerPipeRadius*p.cos(decoAngle), y:cake.pos.y+cake.height, z:cake.pos.z+innerPipeRadius*p.sin(decoAngle)},
+                  radius:FROSTING_PIPE_RADIUS * 0.8,
+                  originalAngleOnCake:decoAngle
+                });
+              }
+
+              cake.decorations.push({
+                pos3D: {x:cake.pos.x, y:cake.pos.y+cake.height, z:cake.pos.z},
+                radius:FROSTING_PIPE_RADIUS * 1.2,
+                originalAngleOnCake: 0
+              });
+
+              cake.sprinkles = [];
+              let numSprinkles = 150;
+              const SPRINKLE_SIZE = 0.08;
+              const SPRINKLE_COLORS = [p.color(255, 100, 100), p.color(100, 100, 255), p.color(255, 255, 100)];
+
+              for (let i = 0; i < numSprinkles; ++i) {
+                let r = p.random(0, cake.radius * 0.95);
+                let a = p.random(p.TWO_PI);
+                let sColor = p.random(SPRINKLE_COLORS);
+
+                cake.sprinkles.push({
+                  pos3D: {x: cake.pos.x + r * p.cos(a), y: cake.pos.y + cake.height + 0.005, z: cake.pos.z + r * p.sin(a)},
+                  size: SPRINKLE_SIZE,
+                  color: sColor,
+                  originalAngleOnCake: a,
+                  rotationZ: p.random(p.TWO_PI)
+                });
+              }
+
+              let { screen_pos_above: firstCutAbovePos } = p.calculateKnifeCutPositions(slice.angleStart);
+              knife.startScreenPos_Overall = p.createVector(-knife.bladeLengthScreen - knife.handleLengthScreen, firstCutAbovePos.y);
+              knife.screenPos = knife.startScreenPos_Overall.copy();
+              knife.screenAngle = 0;
+
+              slice.startPos3D = {x:cake.pos.x,y:cake.pos.y,z:cake.pos.z};
+              slice.currentPos3D = {...slice.startPos3D};
+              let sliceMidAngle = slice.angleStart+(((slice.angleEnd-slice.angleStart+p.TWO_PI)%p.TWO_PI)/2);
+              slice.targetPos3D = {x:cake.pos.x+cake.radius*1.5*p.cos(sliceMidAngle), y:cake.pos.y+cake.height, z:cake.pos.z+cake.radius*1.5*p.sin(sliceMidAngle)};
+              slice.currentRotation3D_Y = 0; slice.targetRotation3D_Y = -p.PI/8;
+            };
+
+            p.setup = function() {
+                const cakeContainer = document.getElementById('cake-container');
+                const containerWidth = cakeContainer.offsetWidth;
+                const containerHeight = cakeContainer.offsetHeight;
+
+                p.createCanvas(containerWidth, containerHeight);
+                p.canvas.parentElement.style.overflow = 'hidden'; 
+                
+                p.initializeCakeAndElements();
+            };
+
+            p.draw = function() {
+              p.background(255, 218, 185); // Matches #ffdab9
+              p.handleStates();
+
+              p.drawIsoCakeSides(cake);
+
+              if (knife.visible && (cakeState === 'ANIMATE_KNIFE_CUT_DOWN' || cakeState === 'ANIMATE_KNIFE_CUT_UP')) {
+                  p.drawKnife2D();
+              }
+
+              p.drawIsoCakeTop(cake);
+
+              p.drawPipedFrosting(cake);
+              p.drawSprinkles3DIso(cake.sprinkles, cake.pos, 0);
+
+              p.drawCandles3D();
+
+              if (slice.active) {
+                  p.drawSlice3DIso(slice.currentPos3D,slice.currentRotation3D_Y);
+                  p.drawSliceDecorations3DIso(slice.currentPos3D,slice.currentRotation3D_Y);
+              }
+
+              if (knife.visible && !(cakeState === 'ANIMATE_KNIFE_CUT_DOWN' || cakeState === 'ANIMATE_KNIFE_CUT_UP')) {
+                  p.drawKnife2D();
+              }
+            };
+
+            p.handleStates = function() {
+              switch (cakeState) {
+                case 'IDLE_LIT': break;
+
+                case 'ANIMATE_BLOW_OUT':
+                  let allOut=true; candles.forEach(c=>{if(c.isLit){c.flameSize*=0.8;if(c.flameSize<1)c.isLit=false;else allOut=false;}});
+                  if(allOut){
+                      cakeState='ANIMATE_KNIFE_INITIAL_APPROACH';
+                      knife.visible=true; knife.animationProgress=0; knife.cutStep=1;
+                      
+                      let { screen_pos_above, screen_pos_down } = p.calculateKnifeCutPositions(slice.angleStart);
+                      knife.currentCutTargetScreenPos_Above = screen_pos_above;
+                      knife.currentCutTargetScreenPos_Down = screen_pos_down;
+                      knifeTargetScreenAngle = p.calculateKnifeScreenAngle(slice.angleStart);
+
+                      knifeAnimationStartPos = knife.screenPos.copy();
+                      knifeAnimationStartAngle = knife.screenAngle;
+                  }
+                  break;
+
+                case 'ANIMATE_KNIFE_INITIAL_APPROACH':
+                  knife.animationProgress = p.min(1, knife.animationProgress + 0.03);
+                  knife.screenPos = p5.Vector.lerp(knifeAnimationStartPos, knife.currentCutTargetScreenPos_Above, knife.animationProgress);
+                  knife.screenAngle = p.lerp(knifeAnimationStartAngle, knifeTargetScreenAngle, knife.animationProgress);
+
+                  if (knife.animationProgress >= 1) {
+                      cakeState = 'ANIMATE_KNIFE_CUT_DOWN';
+                      knife.animationProgress = 0;
+                      knifeAnimationStartPos = knife.screenPos.copy();
+                  }
+                  break;
+                
+                case 'ANIMATE_KNIFE_CUT_DOWN':
+                  knife.animationProgress = p.min(1, knife.animationProgress + 0.05);
+                  knife.screenPos.y = p.lerp(knife.currentCutTargetScreenPos_Above.y, knife.currentCutTargetScreenPos_Down.y, knife.animationProgress);
+                  if (knife.animationProgress >= 1) {
+                      cakeState = 'ANIMATE_KNIFE_CUT_UP';
+                      knife.animationProgress = 0;
+                      knifeAnimationStartPos = knife.screenPos.copy();
+                  }
+                  break;
+
+                case 'ANIMATE_KNIFE_CUT_UP':
+                  knife.animationProgress = p.min(1, knife.animationProgress + 0.05);
+                  knife.screenPos.y = p.lerp(knife.currentCutTargetScreenPos_Down.y, knife.currentCutTargetScreenPos_Above.y, knife.animationProgress);
+                  if (knife.animationProgress >= 1) {
+                      cakeState = 'ANIMATE_KNIFE_DELAY_BEFORE_NEXT_ACTION';
+                      knife.animationProgress = 0; knife.delayTimer = 0;
+                      knifeAnimationStartPos = knife.screenPos.copy();
+                  }
+                  break;
+
+                case 'ANIMATE_KNIFE_DELAY_BEFORE_NEXT_ACTION': 
+                  knife.delayTimer++;
+                  if (knife.delayTimer >= knife.delayDuration) {
+                      if (knife.cutStep === 1) {
+                          knife.cutStep = 2;
+                          cakeState = 'ANIMATE_KNIFE_ALIGN_SECOND_CUT';
+                          knife.animationProgress = 0;
+                          
+                          let { screen_pos_above, screen_pos_down } = p.calculateKnifeCutPositions(slice.angleEnd);
+                          knife.currentCutTargetScreenPos_Above = screen_pos_above;
+                          knife.currentCutTargetScreenPos_Down = screen_pos_down;
+                          knifeTargetScreenAngle = p.calculateKnifeScreenAngle(slice.angleEnd);
+
+                          knifeAnimationStartPos = knife.screenPos.copy();
+                          knifeAnimationStartAngle = knife.screenAngle;
+                      } else { 
+                          cakeState = 'ANIMATE_KNIFE_FULL_RETRACT';
+                          knife.animationProgress = 0;
+                          knifeAnimationStartPos = knife.screenPos.copy();
+                      }
+                  }
+                  break;
+
+                case 'ANIMATE_KNIFE_ALIGN_SECOND_CUT':
+                  knife.animationProgress = p.min(1, knife.animationProgress + 0.05);
+                  knife.screenPos = p5.Vector.lerp(knifeAnimationStartPos, knife.currentCutTargetScreenPos_Above, knife.animationProgress);
+                  knife.screenAngle = p.lerp(knifeAnimationStartAngle, knifeTargetScreenAngle, knife.animationProgress);
+                  
+                  if (knife.animationProgress >= 1) {
+                      cakeState = 'ANIMATE_KNIFE_CUT_DOWN';
+                      knife.animationProgress = 0;
+                      knifeAnimationStartPos = knife.screenPos.copy();
+                  }
+                  break;
+
+                case 'ANIMATE_KNIFE_FULL_RETRACT':
+                    knife.animationProgress = p.min(1, knife.animationProgress + 0.03);
+                    knife.screenPos = p5.Vector.lerp(knifeAnimationStartPos, knife.startScreenPos_Overall, knife.animationProgress);
+                     if (knife.animationProgress >= 1) {
+                        knife.visible = false;
+                        cakeState = 'ANIMATE_SLICE_SEPARATE';
+                        slice.active = true; slice.animProgress = 0;
+                    }
+                    break;
+
+                case 'ANIMATE_SLICE_SEPARATE':
+                  slice.animProgress = p.min(1,slice.animProgress+0.015);
+                  slice.currentPos3D = p.lerp3D(slice.startPos3D,slice.targetPos3D,slice.animProgress);
+                  slice.currentRotation3D_Y = p.lerp(0,slice.targetRotation3D_Y,slice.animProgress);
+                  if(slice.animProgress>=1) {
+                      cakeState='FINAL_DISPLAY';
+                      if (typeof p5ShowNextButton === 'function') {
+                          p5ShowNextButton();
+                      }
+                  }
+                  break;
+
+                case 'FINAL_DISPLAY': break;
+              }
+            };
+
+            p.drawIsoEllipse = function(wCX, wCY, wC_Z, rad, clr, segs = 32, sAng = 0, eAng = p.TWO_PI) {
+              p.fill(clr);
+              p.noStroke();
+              p.beginShape();
+
+              const isPartialEllipse = p.abs((eAng - sAng + p.TWO_PI) % p.TWO_PI) > 0.01 && p.abs((eAng - sAng + p.TWO_PI) % p.TWO_PI) < p.TWO_PI - 0.01;
+
+              if (isPartialEllipse) {
+                p.vertex(p.project3D(wCX, wCY, wC_Z).x, p.project3D(wCX, wCY, wC_Z).y);
+              }
+
+              let actualEndAng = eAng;
+              if (eAng < sAng) actualEndAng += p.TWO_PI;
+
+              for (let i = 0; i <= segs; ++i) {
+                let curAng = sAng + (actualEndAng - sAng) * (i / segs);
+                let pos = p.project3D(wCX + rad * p.cos(curAng), wCY, wC_Z + rad * p.sin(curAng));
+                p.vertex(pos.x, pos.y);
+              }
+              p.endShape(p.CLOSE);
+            };
+            p.isAngleInSliceRange = function(decoAngle,sliceStart,sliceEnd){let sa_norm=(sliceStart%p.TWO_PI+p.TWO_PI)%p.TWO_PI,se_norm=(sliceEnd%p.TWO_PI+p.TWO_PI)%p.TWO_PI,da_norm=(decoAngle%p.TWO_PI+p.TWO_PI)%p.TWO_PI;if(sa_norm<=se_norm)return(da_norm>=sa_norm&&da_norm<=se_norm);else return(da_norm>=sa_norm||da_norm<=se_norm);}
+
+            p.drawIsoCakeSides = function(c){
+              let segs=30,pts_b=[],pts_t=[];
+              for(let i=0;i<=segs;++i){let aS=p.TWO_PI/segs*i,xO=c.radius*p.cos(aS),zO=c.radius*p.sin(aS);pts_b.push(p.project3D(c.pos.x+xO,c.pos.y,c.pos.z+zO));pts_t.push(p.project3D(c.pos.x+xO,c.pos.y+c.height,c.pos.z+zO));}
+              p.fill(c.frostingColor);p.noStroke();
+              for(let i=0;i<segs;++i){let a1=(p.TWO_PI/segs)*i,a2=(p.TWO_PI/segs)*(i+1);let midAS=(a1+(((a2-a1+p.TWO_PI)%p.TWO_PI)/2)+p.TWO_PI)%p.TWO_PI;
+                if(!slice.active||!(cakeState==='ANIMATE_SLICE_SEPARATE'||cakeState==='FINAL_DISPLAY')||!p.isAngleInSliceRange(midAS,slice.angleStart,slice.angleEnd)){
+                  p.beginShape();p.vertex(pts_b[i].x,pts_b[i].y);p.vertex(pts_b[i+1].x,pts_b[i+1].y);p.vertex(pts_t[i+1].x,pts_t[i+1].y);p.vertex(pts_t[i].x,pts_t[i].y);p.endShape(p.CLOSE);
+                }
+              }
+              if(slice.active&&(cakeState==='ANIMATE_SLICE_SEPARATE'||cakeState==='FINAL_DISPLAY')){
+                p.fill(c.color);p.noStroke();
+                let Pab=p.project3D(c.pos.x,c.pos.y,c.pos.z),Pat=p.project3D(c.pos.x,c.pos.y+c.height,c.pos.z);
+                let Pobs=p.project3D(c.pos.x+c.radius*p.cos(slice.angleStart),c.pos.y,c.pos.z+c.radius*p.sin(slice.angleStart));
+                let Pots=p.project3D(c.pos.x+c.radius*p.cos(slice.angleStart),c.pos.y+c.height,c.pos.z+c.radius*p.sin(slice.angleStart));
+                p.beginShape();p.vertex(Pat.x,Pat.y);p.vertex(Pots.x,Pots.y);p.vertex(Pobs.x,Pobs.y);p.vertex(Pab.x,Pab.y);p.endShape(p.CLOSE);
+                let Pobe=p.project3D(c.pos.x+c.radius*p.cos(slice.angleEnd),c.pos.y,c.pos.z+c.radius*p.sin(slice.angleEnd));
+                let Pote=p.project3D(c.pos.x+c.radius*p.cos(slice.angleEnd),c.pos.y+c.height,c.pos.z+c.radius*p.sin(slice.angleEnd));
+                p.beginShape();p.vertex(Pat.x,Pat.y);p.vertex(Pote.x,Pote.y);p.vertex(Pobe.x,Pobe.y);p.vertex(Pab.x,Pab.y);p.endShape(p.CLOSE);
+              }
+            };
+
+            p.drawIsoCakeTop = function(c) {
+              let segs = 30;
+              if(slice.active && (cakeState === 'ANIMATE_SLICE_SEPARATE' || cakeState === 'FINAL_DISPLAY')) {
+                p.drawIsoEllipse(c.pos.x, c.pos.y + c.height, c.pos.z, c.radius, c.topFrostingColor, segs, slice.angleEnd, slice.angleStart + p.TWO_PI);
+              } else {
+                p.drawIsoEllipse(c.pos.x, c.pos.y + c.height, c.pos.z, c.radius, c.topFrostingColor, segs);
+              }
+            };
+
+            p.drawPipedFrosting = function(c){
+                for(let deco of c.decorations){
+                    if(!slice.active || !(cakeState==='ANIMATE_SLICE_SEPARATE'||cakeState==='FINAL_DISPLAY') || !p.isAngleInSliceRange(deco.originalAngleOnCake,slice.angleStart,slice.angleEnd)){
+                        let pos=p.project3D(deco.pos3D.x,deco.pos3D.y,deco.pos3D.z);
+                        p.fill(c.frostingColor);
+                        p.noStroke();
+                        p.ellipse(pos.x,pos.y,deco.radius*isoScale*1.5,deco.radius*isoScale*1.5);
+                    }
+                }
+            };
+
+            p.drawSprinkles3DIso = function(sprinklesArray, cakeCenterPos, currentRotY) {
+                for (let sprinkle of sprinklesArray) {
+                    if (!slice.active || !(cakeState === 'ANIMATE_SLICE_SEPARATE'||cakeState==='FINAL_DISPLAY') || !p.isAngleInSliceRange(sprinkle.originalAngleOnCake, slice.angleStart, slice.angleEnd)) {
+                        let pos = p.project3D(sprinkle.pos3D.x, sprinkle.pos3D.y, sprinkle.pos3D.z);
+                        
+                        p.push();
+                        p.translate(pos.x, pos.y);
+                        p.rotate(sprinkle.rotationZ);
+                        p.fill(sprinkle.color);
+                        p.noStroke();
+                        p.rectMode(p.CENTER);
+                        p.rect(0, 0, sprinkle.size * isoScale, sprinkle.size * isoScale * 2);
+                        p.pop();
+                    }
+                }
+            };
+
+            p.drawCandles3D = function(){for(let candle of candles){let segs=8,c_pts_b=[],c_pts_t=[];for(let i=0;i<=segs;++i){let aS=p.TWO_PI/segs*i,xO=candle.radius*p.cos(aS),zO=candle.radius*p.sin(aS);c_pts_b.push(p.project3D(candle.pos3D.x+xO,candle.pos3D.y,candle.pos3D.z+zO));c_pts_t.push(p.project3D(candle.pos3D.x+xO,candle.pos3D.y+candle.height,candle.pos3D.z+zO));}p.fill(candle.color);p.noStroke();for(let i=0;i<segs;++i){p.beginShape();p.vertex(c_pts_b[i].x,c_pts_b[i].y);p.vertex(c_pts_b[i+1].x,c_pts_b[i+1].y);p.vertex(c_pts_t[i+1].x,c_pts_t[i+1].y);p.vertex(c_pts_t[i].x,c_pts_t[i].y);p.endShape(p.CLOSE);}p.drawIsoEllipse(candle.pos3D.x,candle.pos3D.y+candle.height,candle.pos3D.z,candle.radius,candle.color,segs);let wT3D={x:candle.pos3D.x,y:candle.pos3D.y+candle.height+0.1,z:candle.pos3D.z};let wBP=p.project3D(candle.pos3D.x,candle.pos3D.y+candle.height,candle.pos3D.z);let wTP=p.project3D(wT3D.x,wT3D.y,wT3D.z);p.stroke(50);p.strokeWeight(1.5);p.line(wBP.x,wBP.y,wTP.x,wTP.y);if(candle.isLit){let fBP=p.project3D(candle.pos3D.x,candle.pos3D.y+candle.height+0.2,candle.pos3D.z);let f=p.map(p.sin(p.frameCount*0.3+candle.flameFlickerOffset),-1,1,0.9,1.1);p.drawFlame2D(fBP.x,fBP.y,candle.flameSize*f);}}}
+            p.drawFlame2D = function(x,y,size){p.push();p.translate(x,y);p.noStroke();p.fill(255,165,0,180);p.ellipse(0,-size*0.6,size*0.7,size*1.2);p.fill(255,220,0,220);p.ellipse(0,-size*0.5,size*0.4,size*0.8);p.pop();}
+
+            p.drawKnife2D = function() {
+              p.push();
+              p.translate(knife.screenPos.x, knife.screenPos.y); 
+              p.rotate(knife.screenAngle);
+              
+              p.fill(200,205,210); p.stroke(150); p.strokeWeight(1);
+              p.rect(-knife.bladeLengthScreen/2, 0, knife.bladeLengthScreen, knife.bladeHeightScreen, 3);
+              
+              p.fill(101,67,33); p.stroke(80,50,20);
+              p.rect(knife.bladeLengthScreen/2, -knife.handleWidthScreen/2, knife.handleLengthScreen, knife.handleWidthScreen, 4);
+              p.pop();
+            };
+
+            p.drawSlice3DIso = function(sliceWorldPos,sliceWorldRotY){
+                p.push();
+                const getRotAngle=(bA)=>(bA+sliceWorldRotY+p.TWO_PI)%p.TWO_PI;
+                let s_aS=getRotAngle(slice.angleStart),s_aE=getRotAngle(slice.angleEnd),segs=10;
+                
+                p.drawIsoEllipse(sliceWorldPos.x,sliceWorldPos.y,sliceWorldPos.z,cake.radius,cake.color,segs,s_aS,s_aE);
+                
+                p.fill(cake.color);p.noStroke();
+                const projSlVtx=(rO,yL,aO)=>{let wX=sliceWorldPos.x+rO*p.cos(aO),wY=sliceWorldPos.y+yL,wZ=sliceWorldPos.z+rO*p.sin(aO);return p.project3D(wX,wY,wZ);};
+                
+                let P1c1=projSlVtx(0,cake.height,0),P2c1=projSlVtx(cake.radius,cake.height,s_aS),P3c1=projSlVtx(cake.radius,0,s_aS),P4c1=projSlVtx(0,0,0);
+                p.beginShape();p.vertex(P1c1.x,P1c1.y);p.vertex(P2c1.x,P2c1.y);p.vertex(P3c1.x,P3c1.y);p.vertex(P4c1.x,P4c1.y);p.endShape(p.CLOSE);
+                
+                let P1c2=P1c1,P2c2=projSlVtx(cake.radius,cake.height,s_aE),P3c2=projSlVtx(cake.radius,0,s_aE),P4c2=P1c1;
+                p.beginShape();p.vertex(P1c2.x,P1c2.y);p.vertex(P2c2.x,P2c2.y);p.vertex(P3c2.x,P3c2.y);p.vertex(P4c2.x,P4c2.y);p.endShape(p.CLOSE);
+                
+                p.fill(cake.frostingColor);p.noStroke();
+                let effAEndLoop=s_aE;if(effAEndLoop<s_aS)effAEndLoop+=p.TWO_PI;
+                let aStep=(effAEndLoop-s_aS)/segs;
+                for(let i=0;i<segs;++i){
+                    let ang1=s_aS+i*aStep,ang2=s_aS+(i+1)*aStep;
+                    let pTC=projSlVtx(cake.radius,cake.height,ang1),pBC=projSlVtx(cake.radius,0,ang1);
+                    let pTN=projSlVtx(cake.radius,cake.height,ang2),pBN=projSlVtx(cake.radius,0,ang2);
+                    p.beginShape();p.vertex(pTC.x,pTC.y);p.vertex(pBC.x,pBC.y);p.vertex(pBN.x,pBN.y);p.vertex(pTN.x,pTN.y);p.endShape(p.CLOSE);
+                }
+                
+                p.drawIsoEllipse(sliceWorldPos.x,sliceWorldPos.y+cake.height,sliceWorldPos.z,cake.radius,cake.topFrostingColor,segs,s_aS,s_aE);
+                p.pop();
+            };
+
+            p.drawSliceDecorations3DIso = function(sliceWorldPos, sliceWorldRotY) {
+                for (let deco of cake.decorations) {
+                    if (p.isAngleInSliceRange(deco.originalAngleOnCake, slice.angleStart, slice.angleEnd)) {
+                        let originalOffsetX = deco.pos3D.x - cake.pos.x;
+                        let originalOffsetZ = deco.pos3D.z - cake.pos.z;
+
+                        let rotatedOffsetX = originalOffsetX * p.cos(sliceWorldRotY) - originalOffsetZ * p.sin(sliceWorldRotY);
+                        let rotatedOffsetZ = originalOffsetX * p.sin(sliceWorldRotY) + originalOffsetZ * p.cos(sliceWorldRotY);
+                        
+                        let decoOnSliceX = sliceWorldPos.x + rotatedOffsetX;
+                        let decoOnSliceY = sliceWorldPos.y + cake.height;
+                        let decoOnSliceZ = sliceWorldPos.z + rotatedOffsetZ;
+
+                        let pos = p.project3D(decoOnSliceX, decoOnSliceY, decoOnSliceZ);
+                        p.fill(cake.frostingColor); 
+                        p.noStroke();
+                        p.ellipse(pos.x, pos.y, deco.radius * isoScale * 1.5, deco.radius * isoScale * 1.5);
+                    }
+                }
+
+                for (let sprinkle of cake.sprinkles) {
+                    if (p.isAngleInSliceRange(sprinkle.originalAngleOnCake, slice.angleStart, slice.angleEnd)) {
+                        let originalOffsetX = sprinkle.pos3D.x - cake.pos.x;
+                        let originalOffsetZ = sprinkle.pos3D.z - cake.pos.z;
+
+                        let rotatedOffsetX = originalOffsetX * p.cos(sliceWorldRotY) - originalOffsetZ * p.sin(sliceWorldRotY);
+                        let rotatedOffsetZ = originalOffsetX * p.sin(sliceWorldRotY) + originalOffsetZ * p.cos(sliceWorldRotY);
+                        
+                        let sprinkleOnSliceX = sliceWorldPos.x + rotatedOffsetX;
+                        let sprinkleOnSliceY = sliceWorldPos.y + cake.height + 0.005;
+                        let sprinkleOnSliceZ = sliceWorldPos.z + rotatedOffsetZ;
+
+                        let pos = p.project3D(sprinkleOnSliceX, sprinkleOnSliceY, sprinkleOnSliceZ);
+
+                        p.push();
+                        p.translate(pos.x, pos.y);
+                        p.rotate(sprinkle.rotationZ);
+                        p.fill(sprinkle.color);
+                        p.noStroke();
+                        p.rectMode(p.CENTER);
+                        p.rect(0, 0, sprinkle.size * isoScale, sprinkle.size * isoScale * 2);
+                        p.pop();
+                    }
+                }
+            };
+
+            p.mousePressed = function() {
+                if (cakeState === 'IDLE_LIT') {
+                    let cakeCenterScreen = p.project3D(cake.pos.x, cake.pos.y + cake.height, cake.pos.z);
+                    let cakeRadiusScreen = cake.radius * isoScale * 1.2;
+                    if (p.dist(p.mouseX, p.mouseY, cakeCenterScreen.x, cakeCenterScreen.y) < cakeRadiusScreen) {
+                        if (typeof blowOutCandles === 'function') {
+                            blowOutCandles();
+                        }
+                    }
+                }
+            };
+
+            p.windowResized = function() {
+              const cakeContainer = document.getElementById('cake-container');
+              if (cakeContainer) {
+                const newWidth = cakeContainer.offsetWidth;
+                const newHeight = cakeContainer.offsetHeight;
+                if (newWidth > 0 && newHeight > 0) {
+                    p.resizeCanvas(newWidth, newHeight);
+                    p.initializeCakeAndElements();
+                } else {
+                    console.warn("p5.js windowResized: Cake container has zero dimensions. Skipping resize/re-init.");
+                }
+              }
+            };
+        };
+    </script>
+    <!-- END OF P5.JS SCRIPT -->
+
+    <script>
+        // --- CONFIGURATION ---
+        const girlfriendName = "My Sunshine";
+        const yourName = "Your Boo";
         const photos = [
-            { src: "https://via.placeholder.com/600x400/FFC0CB/000000?Text=Memory+1", caption: "Our first amazing adventure!" },
-            { src: "https://via.placeholder.com/600x400/ADD8E6/000000?Text=Memory+2", caption: "That hilarious moment we shared." },
-            { src: "https://via.placeholder.com/600x400/90EE90/000000?Text=Memory+3", caption: "You looked so beautiful here." },
-            // Add more photos if you like
+            { src: "b1.png", caption: "Our first amazing adventure!" },
+            { src: "b2.png", caption: "That hilarious moment we shared." },
+            { src: "b3.png", caption: "You looked so beautiful here." },
         ];
-
-        const personalMessage = `Dearest ${girlfriendName},
-
-Every day with you feels like a celebration, but today is extra special.
-I wanted to create something unique to show you just how much you mean to me.
-
-Here are a few reasons why I adore you:
-- Your incredible smile that lights up my world.
-- Your kindness and compassion towards everyone.
-- The way you make me laugh even on tough days.
-- Your strength and determination.
-- Simply put, you make my life better in every single way.
-
-Happy Birthday, my love. I hope this little surprise brings a smile to your face.
-I can't wait to celebrate many more birthdays with you.
-
-All my love,
-${yourName}`;
-
-        const songURL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // !!! REPLACE WITH YOUR ACTUAL SONG URL !!!
-        const songTitle = "Her Favorite Song / Our Song"; // !!! REPLACE WITH ACTUAL SONG TITLE !!!
-
-        const balloonPopSoundURL = "https://www.soundjay.com/button/sounds/button-09.mp3"; // Replace with your preferred pop sound
-        const cheerSoundURL = "https://www.soundjay.com/human/sounds/applause-01.mp3"; // Replace with your preferred cheer sound
+        const personalMessage = `Dearest ${girlfriendName},\n\nEvery day with you feels like a celebration, but today is extra special.\nI wanted to create something unique to show you just how much you mean to me.\n\nHere are a few reasons why I adore you:\n- Your incredible smile that lights up my world.\n- Your kindness and compassion towards everyone.\n- The way you make me laugh even on tough days.\n- Your strength and determination.\n- Simply put, you make my life better in every single way.\n\nHappy Birthday, my love. I hope this little surprise brings a smile to your face.\nI can't wait to celebrate many more birthdays with you.\n\nAll my love,\n${yourName}`;
+        const songURL = "birthday.mp3"; // RE-ADDED: Song URL
+        const songTitle = "Our Special Song"; // RE-ADDED: Song Title
+        const balloonPopSoundURL = "button-09.mp3";
+        const cheerSoundURL = "applause-01.mp3";
         // --- END OF CONFIGURATION ---
-
 
         let currentSection = 0;
         const sections = document.querySelectorAll('.section');
         let backgroundMusic;
         let popSound;
         let cheerSound;
+        let candlesBlownOut = false;
+        let activeBalloonsCount = 0;
 
-        // Initialize Sounds with Howler.js
         function initSounds() {
-            if (songURL && songURL !== "birthday.mp3") {
-                backgroundMusic = new Howl({
-                    src: [songURL],
-                    loop: true,
-                    volume: 0.3, // Lower volume for background
-                    html5: true // Good for longer tracks
-                });
+            console.log("Initializing sounds...");
+            // Initializing background music using Howler.js
+            if (songURL) { // Only initialize if songURL is provided
+                backgroundMusic = new Howl({ src: [songURL], loop: true, volume: 0.3, html5: true });
+                console.log("Background music Howl object created.");
             } else {
-                console.warn("Background music URL not set. Song will not play.");
+                console.warn("Background music URL not set. Background music will not play.");
             }
-
-            if (balloonPopSoundURL) {
-                popSound = new Howl({ src: [balloonPopSoundURL], volume: 0.7 });
-            }
-            if (cheerSoundURL) {
-                cheerSound = new Howl({ src: [cheerSoundURL], volume: 0.8 });
-            }
+            if (balloonPopSoundURL) popSound = new Howl({ src: [balloonPopSoundURL], volume: 0.7 });
+            if (cheerSoundURL) cheerSound = new Howl({ src: [cheerSoundURL], volume: 0.8 });
+            console.log("Sound effects Howl objects created.");
         }
 
-
-        // Particle Configurations
         const tsParticlesConfig = {
-            fullScreen: { enable: false }, // We'll attach to specific divs
+            background: { color: { value: "transparent" } },
             particles: {
                 number: { value: 80, density: { enable: true, value_area: 800 } },
                 color: { value: "#ffffff" },
-                shape: { type: "circle" },
+                shape: { type: "circle", stroke: { width: 0, color: "#000000" }, polygon: { nb_sides: 5 } },
                 opacity: { value: 0.5, random: false, anim: { enable: false, speed: 1, opacity_min: 0.1, sync: false } },
                 size: { value: 3, random: true, anim: { enable: false, speed: 40, size_min: 0.1, sync: false } },
                 line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.4, width: 1 },
-                move: {
-                    enable: true, speed: 2, direction: "none", random: false, straight: false, out_mode: "out",
-                    attract: { enable: false, rotateX: 600, rotateY: 1200 }
-                }
+                move: { enable: true, speed: 2, direction: "none", random: false, straight: false, out_mode: "out", bounce: false, attract: { enable: false, rotateX: 600, rotateY: 1200 } }
             },
             interactivity: {
                 detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "repulse" },
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
-                },
-                modes: {
-                    grab: { distance: 400, line_opacity: 1 },
-                    bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
-                    repulse: { distance: 100, duration: 0.4 },
-                    push: { particles_nb: 4 },
-                    remove: { particles_nb: 2 }
-                }
+                events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" }, resize: true },
+                modes: { grab: { distance: 140, line_linked: { opacity: 1 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 4 }, remove: { particles_nb: 2 } }
             },
             retina_detect: true
         };
 
         const confettiConfig = {
-            fullScreen: { enable: false },
             particles: {
-                number: { value: 0 }, // Start with 0, emit on demand
-                color: {
-                    value: ["#FFC0CB", "#FF69B4", "#FF1493", "#DB7093", "#ADD8E6", "#87CEEB"]
-                },
-                shape: {
-                    type: "confetti", // Requires confetti shape plugin if not built-in
-                     options: {
-                        confetti: { // Specific options for confetti if needed
-                            type: ["circle", "square", "triangle", "star"]
-                        }
-                    }
-                },
-                opacity: { value: { min: 0.5, max: 1 }, animation: { enable: true, speed: 2, minimumValue: 0, sync: false, destroy: "life" } },
-                size: { value: { min: 2, max: 8 } },
-                life: {
-                    duration: {
-                        sync: true,
-                        value: 3 // seconds
-                    },
-                    count: 1 // emit once
-                },
+                number: { value: 0 },
+                color: { value: ["#FFD700", "#FF69B4", "#8A2BE2", "#00FFFF", "#FF4500"] },
+                shape: { type: ["circle", "square", "triangle", "polygon"], polygon: { sides: 5 } },
+                opacity: { value: { min: 0.5, max: 1 } },
+                size: { value: { min: 2, max: 8 }, random: true },
+                life: { duration: { min: 0.5, max: 1.5 }, count: 1, delay: { min: 0, max: 0.5 } },
                 move: {
-                    enable: true,
-                    gravity: { enable: true, acceleration: 20 },
-                    speed: {min: 10, max: 30},
-                    decay: 0.05,
-                    direction: "top", // Emit upwards initially
-                    random: true,
-                    straight: false,
-                    outModes: {
-                        default: "destroy",
-                        top: "none"
-                    }
-                },
-                rotate: {
-                    value: { min: 0, max: 360 },
-                    direction: "random",
-                    animation: { enable: true, speed: 60 }
-                },
-                 tilt: {
-                    direction: "random",
-                    enable: true,
-                    value: {min: 0, max: 360},
-                    animation: {enable: true, speed: 60}
-                },
-                roll: { // For 3D-like rotation
-                    darken: { enable: true, value: 25 },
-                    enable: true,
-                    speed: { min: 15, max: 25 }
-                },
-                wobble: { // For a more dynamic fall
-                    distance: 30,
-                    enable: true,
-                    speed: {min: -15, max: 15}
+                    enable: true, speed: { min: 5, max: 15 }, direction: "bottom",
+                    gravity: { enable: true, acceleration: 10 }, decay: 0.05,
+                    straight: false, outModes: { default: "destroy", bottom: "destroy" }, collisions: { enable: false }
                 }
             },
-            emitters: { // We'll use manual emit for confetti
-                position: { x: 50, y: 50 },
-                rate: { quantity: 100, delay: 0.1 }, // Emit 100 particles
-                life: { duration: 0.1, count: 1 } // Emitter lasts for 0.1s, emits once
-            }
+            emitters: [
+                {
+                    position: { x: 50, y: 50 },
+                    rate: { quantity: 100, delay: 0.1 },
+                    life: { duration: 0.05, count: 1, wait: 0 },
+                    size: { width: 0, height: 0 }
+                }
+            ]
         };
 
 
         function showSection(index) {
-            sections.forEach((section, i) => {
+            console.log(`showSection called with index: ${index}`);
+            sections.forEach((sectionElement, i) => {
                 if (i === index) {
-                    section.classList.add('active');
-                    gsap.fromTo(section, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out" });
+                    console.log(`Activating section ${i} (${sectionElement.id || 'no id'})`);
+                    sectionElement.classList.add('active');
+                    gsap.fromTo(sectionElement,
+                        { autoAlpha: 0, y: 50 },
+                        {
+                            autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out",
+                            onComplete: () => {
+                                console.log(`GSAP animation TO VISIBLE complete for section ${i} (${sectionElement.id || 'no id'})`);
+                                if (i === 4) { // Cake screen
+                                    console.log("Setting up Cake Screen (section 4)");
+                                    document.getElementById('cake-message').textContent = "Click the cake to blow out the candles!";
+                                    document.getElementById('cake-next-button').style.display = 'none';
+                                    candlesBlownOut = false;
+
+                                    const cakeContainer = document.getElementById('cake-container');
+                                    requestAnimationFrame(() => {
+                                        const containerWidth = cakeContainer.offsetWidth;
+                                        const containerHeight = cakeContainer.offsetHeight;
+
+                                        if (containerWidth > 0 && containerHeight > 0) {
+                                            if (!myP5Instance) {
+                                                myP5Instance = new p5(cakeSketch, cakeContainer);
+                                            } else {
+                                                myP5Instance.resizeCanvas(containerWidth, containerHeight);
+                                                myP5Instance.initializeCakeAndElements(); 
+                                            }
+                                        } else {
+                                            console.warn("Cake container still has zero dimensions for section 4. P5.js canvas might not render correctly. Width:", containerWidth, "Height:", containerHeight);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    );
                 } else {
-                    section.classList.remove('active');
+                    if (sectionElement.classList.contains('active')) {
+                        console.log(`Deactivating section ${i} (${sectionElement.id || 'no id'})`);
+                    }
+                    sectionElement.classList.remove('active');
+                    gsap.to(sectionElement, {
+                        autoAlpha: 0,
+                        duration: 0.5,
+                        onComplete: () => console.log(`GSAP animation TO HIDDEN complete for section ${i} (${sectionElement.id || 'no id'})`)
+                    });
                 }
             });
+            console.log("Section class toggling and GSAP main animation init done for index: " + index);
 
-            // Special actions for specific sections
-            if (index === 0) { // Loading screen
-                 tsParticles.load("particles-js-loading", {
-                    ...tsParticlesConfig,
-                    particles: {...tsParticlesConfig.particles, color: {value: "#FFF"}, line_linked: { color: "#FFF" } }
-                });
+            if (index === 0) {
+                console.log("Setting up Loading Screen (section 0) particles");
+                tsParticles.load("particles-js-loading", { ...tsParticlesConfig, particles: {...tsParticlesConfig.particles, color: {value: "#FFF"}, line_linked: { color: "#FFF" } } });
             }
-            if (index === 1) { // Welcome screen
+            if (index === 1) { // Welcome Screen
+                console.log("Setting up Welcome Screen (section 1)");
                 gsap.from("#welcome-text", { opacity: 0, scale: 0.5, duration: 1, delay: 0.5, ease: "elastic.out(1, 0.5)" });
-                tsParticles.load("particles-js-welcome", tsParticlesConfig); // Welcome particles
-                 if (backgroundMusic && !backgroundMusic.playing()) {
+                // Play background music when welcome screen appears
+                if (backgroundMusic && !backgroundMusic.playing()) {
+                    console.log("Attempting to play background music.");
                     backgroundMusic.play();
                 }
+                console.log("Welcome Screen (section 1) JS setup logic complete.");
             }
-            if (index === 2) { // Balloon screen
-                createBalloons(10); // Create 10 balloons
+            if (index === 2) {
+                console.log("Setting up Balloon Screen (section 2)");
+                createBalloons(10);
             }
-            if (index === 4) { // Cake screen
-                animateFlames();
-            }
-            if (index === 5) { // Message screen
-                typeMessage(personalMessage, 'typed-message');
-            }
-            if (index === 6 && backgroundMusic && !backgroundMusic.playing()) { // Song screen
-                 backgroundMusic.play(); // Ensure it's playing if navigated here directly
-            }
+            if (index === 5) { typeMessage(personalMessage, 'typed-message'); }
+            // No index === 6 check anymore for song screen.
         }
 
         function nextSection() {
+            console.log(`nextSection called. currentSection: ${currentSection}`);
+            // Index logic needs to be updated after song screen removal
+            // Old: 0->1->2->3->4->5->6(song)->7(final)
+            // New: 0->1->2->3->4->5->6(final)
             if (currentSection < sections.length - 1) {
                 currentSection++;
                 showSection(currentSection);
-            }
+            } else { console.log("Already on last section."); }
         }
 
         function replaySurprise() {
-            currentSection = 0; // Go back to welcome, skip loading
-             if (backgroundMusic && backgroundMusic.playing()) {
-                backgroundMusic.stop(); // Stop music to restart it on welcome
+            console.log("replaySurprise called.");
+            if (backgroundMusic && backgroundMusic.playing()) {
+                backgroundMusic.stop(); // Stop music on replay
             }
-            // Reset cake
-            document.querySelectorAll('.flame').forEach(flame => flame.style.display = 'block');
+            
             document.getElementById('cake-message').textContent = "Click the cake to blow out the candles!";
             document.getElementById('cake-next-button').style.display = 'none';
+            candlesBlownOut = false;
+            console.log("Cake state reset. candlesBlownOut:", candlesBlownOut);
 
-            showSection(1); // Show welcome screen
+            if (myP5Instance && typeof myP5Instance.initializeCakeAndElements === 'function') {
+                myP5Instance.initializeCakeAndElements();
+            } else {
+                console.warn("p5.js instance or initializeCakeAndElements not found on replay. Cake may not reset.");
+            }
+
+            currentSection = 1;
+            showSection(currentSection);
         }
 
-        // Balloon Logic
         function createBalloons(count) {
             const container = document.getElementById('balloon-field');
-            container.innerHTML = ''; // Clear old balloons
+            container.innerHTML = '';
+            activeBalloonsCount = count;
+            console.log(`Creating ${activeBalloonsCount} balloons.`);
+
             const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#6A5ACD', '#FF69B4'];
+            if (count === 0) {
+                 console.log("No balloons to create, moving to next section immediately.");
+                 setTimeout(() => nextSection(), 100);
+                 return;
+            }
             for (let i = 0; i < count; i++) {
                 const balloon = document.createElement('div');
                 balloon.classList.add('balloon');
+                balloon.dataset.balloonId = i;
                 balloon.style.backgroundColor = colors[i % colors.length];
-                balloon.style.left = `${Math.random() * 85}%`; // Keep within bounds
-                balloon.style.bottom = `-${Math.random() * 100 + 50}px`; // Start off-screen from bottom
-
+                balloon.style.left = `${Math.random() * 85}%`;
+                balloon.style.bottom = `-${Math.random() * 100 + 50}px`;
                 balloon.addEventListener('click', () => popBalloon(balloon));
-
                 container.appendChild(balloon);
-
-                gsap.to(balloon, {
-                    y: `-${window.innerHeight * 0.8 + Math.random() * 100}`, // Float up
-                    x: `${(Math.random() - 0.5) * 100}`, // Gentle sway
-                    rotation: `${(Math.random() - 0.5) * 30}`,
-                    duration: Math.random() * 5 + 5, // Random duration
-                    ease: "sine.inOut",
-                    repeat: -1,
-                    yoyo: true,
-                    delay: Math.random() * 2
-                });
+                gsap.to(balloon, { y: `-${window.innerHeight * 0.8 + Math.random() * 100}`, x: `${(Math.random() - 0.5) * 100}`, rotation: `${(Math.random() - 0.5) * 30}`, duration: Math.random() * 5 + 5, ease: "sine.inOut", repeat: -1, yoyo: true, delay: Math.random() * 2 });
             }
         }
 
-        function popBalloon(balloon) {
-            if (popSound) popSound.play();
-            // Trigger confetti at balloon position
-            const rect = balloon.getBoundingClientRect();
-            const confettiEmitter = {
-                ...confettiConfig.emitters,
-                position: {
-                    x: (rect.left + rect.width / 2) * 100 / window.innerWidth,
-                    y: (rect.top + rect.height / 2) * 100 / window.innerHeight
-                }
-            };
-            tsParticles.load({ particles: confettiConfig.particles, emitters: confettiEmitter });
+        function popBalloon(balloonElement) {
+            if (!balloonElement || balloonElement.classList.contains('popped')) {
+                console.log("Attempted to pop an invalid or already popped balloon.");
+                return;
+            }
+            balloonElement.classList.add('popped');
 
-            gsap.to(balloon, {
+            if (popSound) {
+                console.log("Playing pop sound.");
+                popSound.play();
+            }
+
+            const rect = balloonElement.getBoundingClientRect();
+            const confettiEmitter = { ...confettiConfig.emitters[0], position: { x: (rect.left + rect.width / 2) * 100 / window.innerWidth, y: (rect.top + rect.height / 2) * 100 / window.innerHeight } };
+            tsParticles.load({ particles: confettiConfig.particles, emitters: [confettiEmitter] });
+
+            gsap.killTweensOf(balloonElement);
+            gsap.to(balloonElement, {
                 scale: 0,
                 opacity: 0,
                 duration: 0.3,
-                onComplete: () => balloon.remove()
+                onComplete: () => {
+                    balloonElement.remove();
+                    activeBalloonsCount--;
+                    console.log(`Balloon popped. Remaining balloons: ${activeBalloonsCount}`);
+
+                    if (activeBalloonsCount <= 0) {
+                        console.log("All balloons popped! Moving to next section.");
+                        setTimeout(() => {
+                            nextSection();
+                        }, 700);
+                    }
+                }
             });
         }
 
-        // Cake Logic
-        function animateFlames() {
-            document.querySelectorAll('.flame').forEach(flame => {
-                gsap.to(flame, {
-                    scaleY: 1.1,
-                    scaleX: 1.05,
-                    skewX: "random(-5, 5)",
-                    duration: "random(0.2, 0.5)",
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut"
-                });
-            });
+        function p5ShowNextButton() {
+            const cakeNextButton = document.getElementById('cake-next-button');
+            if (cakeNextButton) {
+                gsap.to(cakeNextButton, { display: 'inline-block', opacity: 1, duration: .5, delay: 0 });
+                console.log("p5.js signaled to show cake-next-button.");
+            }
         }
-        let candlesBlownOut = false;
+
         function blowOutCandles() {
+            console.log("HTML blowOutCandles called.");
             if (candlesBlownOut) return;
             candlesBlownOut = true;
+            
+            if (myP5Instance && typeof myP5Instance.p5CakeStateChange === 'function') {
+                myP5Instance.p5CakeStateChange('ANIMATE_BLOW_OUT');
+            } else {
+                console.warn("p5.js instance or p5CakeStateChange not found. Candles not animated by p5.js.");
+            }
 
             if (cheerSound) cheerSound.play();
-            document.querySelectorAll('.flame').forEach(flame => {
-                gsap.to(flame, { opacity: 0, duration: 0.5, onComplete: () => flame.style.display = 'none' });
-            });
             document.getElementById('cake-message').textContent = "Woohoo! Happy Birthday!";
-
-            // Confetti from cake center
-            const cakeRect = document.getElementById('cake-container').getBoundingClientRect();
-             const confettiEmitter = {
-                ...confettiConfig.emitters,
-                 position: {
-                    x: (cakeRect.left + cakeRect.width / 2) * 100 / window.innerWidth,
-                    y: (cakeRect.top + cakeRect.height/4) * 100 / window.innerHeight // Near top of cake
-                },
-                rate: { quantity: 200, delay: 0.05 }, // More confetti for cake
+            
+            const cr = document.getElementById('cake-container').getBoundingClientRect();
+            const ce = {
+                ...confettiConfig.emitters[0],
+                position: { x: (cr.left + cr.width / 2) * 100 / window.innerWidth, y: (cr.top + cr.height / 4) * 100 / window.innerHeight },
+                rate: { quantity: 200, delay: .05 }
             };
-            tsParticles.load({ particles: confettiConfig.particles, emitters: confettiEmitter });
-
-            gsap.to("#cake-next-button", { display: 'inline-block', opacity: 1, duration: 0.5, delay: 1 });
+            tsParticles.load({ particles: confettiConfig.particles, emitters: [ce] });
         }
 
-        // Typewriter effect
         function typeMessage(message, elementId, speed = 50) {
             const element = document.getElementById(elementId);
-            element.innerHTML = ""; // Clear previous message
+            if (!element) {
+                console.error(`Element with ID ${elementId} not found.`);
+                return;
+            }
+            element.innerHTML = '';
             let i = 0;
-            function type() {
+            const timer = setInterval(() => {
                 if (i < message.length) {
                     element.innerHTML += message.charAt(i);
                     i++;
-                    setTimeout(type, speed);
+                } else {
+                    clearInterval(timer);
                 }
-            }
-            type();
+            }, speed);
         }
-
-
-        // Initialize Swiper
         function initSwiper() {
-            const swiperWrapper = document.querySelector('#gallery-screen .swiper-wrapper');
-            swiperWrapper.innerHTML = ''; // Clear existing slides
-
-            photos.forEach(photo => {
-                const slide = document.createElement('div');
-                slide.classList.add('swiper-slide');
-                const img = document.createElement('img');
-                img.src = photo.src;
-                img.alt = photo.caption;
-                const caption = document.createElement('p');
-                caption.textContent = photo.caption;
-                slide.appendChild(img);
-                slide.appendChild(caption);
-                swiperWrapper.appendChild(slide);
+            const w=document.querySelector('#gallery-screen .swiper-wrapper');
+            w.innerHTML='';
+            photos.forEach(p=>{
+                const s=document.createElement('div');
+                s.classList.add('swiper-slide');
+                const i=document.createElement('img');
+                i.src=p.src;
+                i.alt=p.caption;
+                const capt=document.createElement('p');
+                capt.textContent=p.caption;
+                s.appendChild(i);
+                s.appendChild(capt);
+                w.appendChild(s);
             });
-
-            new Swiper('.swiper-container', {
-                loop: true,
-                grabCursor: true,
-                effect: 'cube', // Try 'coverflow', 'flip', 'cube'
-                cubeEffect: {
-                    shadow: true,
-                    slideShadows: true,
-                    shadowOffset: 20,
-                    shadowScale: 0.94,
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                autoplay: {
-                    delay: 4000,
-                    disableOnInteraction: false,
-                },
-            });
+            new Swiper('.swiper-container',{loop:true,grabCursor:true,effect:'cube',cubeEffect:{shadow:true,slideShadows:true,shadowOffset:20,shadowScale:.94},pagination:{el:'.swiper-pagination',clickable:true},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},autoplay:{delay:4000,disableOnInteraction:false}});
         }
 
-
-        // Initialization on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Update dynamic content
-            // document.querySelectorAll('[Girlfriend\'s Name]').forEach(el => el.textContent = el.textContent.replace('[Girlfriend\'s Name]', girlfriendName));
-            // document.querySelectorAll('[Your Name]').forEach(el => el.textContent = el.textContent.replace('[Your Name]', yourName));
+            console.log("DOMContentLoaded event fired.");
             document.getElementById('welcome-text').textContent = `Happy Birthday, ${girlfriendName}!`;
             document.querySelector('#final-screen h1').textContent = `I Love You, ${girlfriendName}!`;
             document.querySelector('#final-screen p:nth-of-type(2)').innerHTML = `With all my love,<br>${yourName}`;
 
+            // Removed `birthdaySongElement` and `songTitleElement` references as they are not needed for Howler.js
+            // The Howler.js `backgroundMusic` object is initialized via initSounds()
 
-            if (document.getElementById('birthday-song')) {
-                document.getElementById('birthday-song').src = songURL;
-            }
-            if(document.getElementById('song-title')) {
-                document.getElementById('song-title').textContent = `Song: ${songTitle}`;
-            }
-
-
-            initSounds();
+            initSounds(); // This will now initialize backgroundMusic if songURL is set
             initSwiper();
+            console.log("Initial sounds and swiper initialized.");
 
+            console.log("Setting initial GSAP states for sections...");
+            sections.forEach((s, i) => {
+                if (s.classList.contains('active')) {
+                    gsap.set(s, { autoAlpha: 1, y: 0 });
+                    console.log(`Section ${i} (${s.id}) is active, set to autoAlpha:1, y:0`);
+                } else {
+                    gsap.set(s, { autoAlpha: 0, y: 50 });
+                    console.log(`Section ${i} (${s.id}) is not active, set to autoAlpha:0, y:50`);
+                }
+            });
+            console.log("Initial GSAP states set.");
 
-            // Hide loading screen after a delay and show first real section
+            showSection(0);
+
             setTimeout(() => {
-                 // Stop loading particles if any
-                const loadingParticles = tsParticles.dom().find(p => p.sourceOptions.id === "particles-js-loading");
-                if (loadingParticles) loadingParticles.destroy();
+                console.log("Timeout finished. Attempting to destroy loading particles.");
+                const allParticlesInstances = tsParticles.dom();
+                let loadingParticlesInstance = null;
+                for (const instance of allParticlesInstances) {
+                    if (instance.id === "particles-js-loading") {
+                        loadingParticlesInstance = instance;
+                        break;
+                    }
+                }
+                if (loadingParticlesInstance) {
+                    loadingParticlesInstance.destroy();
+                    console.log("Loading particles instance destroyed.");
+                } else {
+                    console.log("No loading particles instance for 'particles-js-loading' found to destroy.");
+                }
 
-                currentSection = 1; // Start at welcome screen
+                currentSection = 1;
+                console.log("Calling showSection to display Welcome Screen (index 1).");
                 showSection(currentSection);
-            }, 3000); // Adjust loading time as needed
+                console.log("Returned from initial showSection(1) call.");
+            }, 3000);
         });
-
     </script>
 </body>
 </html>
+
