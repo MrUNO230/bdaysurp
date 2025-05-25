@@ -157,7 +157,7 @@
 
     <!-- The Howler.js library handles background audio playback directly in JS, no need for a visible HTML audio element -->
 
-    <div id="final-screen" class="section"><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
+    <div id="final-screen" class="section"><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever.</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
 
     <script>
         // Global variable to hold the p5.js instance
@@ -683,8 +683,9 @@
 
     <script>
         // --- CONFIGURATION ---
-        const girlfriendName = "My Sunshine";
-        const yourName = "Your Boo";
+        const welcomeGirlfriendName = "Mera Betua";
+        const finalGirlfriendName = "My Dear Mahima, My wifey";
+        const yourName = "Your Hubby, Mohit";
         const photos = [
             { src: "b2.jpg" },
             { src: "b3.jpg" },
@@ -696,7 +697,6 @@
             { src: "b9.jpg" },
             { src: "b10.jpg" },
         ];
-        const personalMessage = `Dearest ${girlfriendName},\n\nEvery day with you feels like a celebration, but today is extra special.\nI wanted to create something unique to show you just how much you mean to me.\n\nHere are a few reasons why I adore you:\n- Your incredible smile that lights up my world.\n- Your kindness and compassion towards everyone.\n- The way you make me laugh even on tough days.\n- Your strength and determination.\n- Simply put, you make my life better in every single way.\n\nHappy Birthday, my love. I hope this little surprise brings a smile to your face.\nI can't wait to celebrate many more birthdays with you.\n\nAll my love,\n${yourName}`;
         const songURL = "birthday.mp3"; // RE-ADDED: Song URL
         const songTitle = "Our Special Song"; // RE-ADDED: Song Title
         const balloonPopSoundURL = "button-09.mp3";
@@ -1006,8 +1006,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             console.log("DOMContentLoaded event fired.");
-            document.getElementById('welcome-text').textContent = `Happy Birthday, ${girlfriendName}!`;
-            document.querySelector('#final-screen h1').textContent = `I Love You, ${girlfriendName}!`;
+            document.getElementById('welcome-text').textContent = `Happy Birthday, ${welcomeGirlfriendName}!`;
+            document.querySelector('#final-screen h1').textContent = `I Love You, ${finalGirlfriendName}!`;
             document.querySelector('#final-screen p:nth-of-type(2)').innerHTML = `With all my love,<br>${yourName}`;
 
             // Removed `birthdaySongElement` and `songTitleElement` references as they are not needed for Howler.js
