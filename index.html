@@ -1008,7 +1008,7 @@
             console.log("DOMContentLoaded event fired.");
             document.getElementById('welcome-text').textContent = `Happy Birthday, ${welcomeGirlfriendName}!`;
             document.querySelector('#final-screen h1').textContent = `I Love You, ${finalGirlfriendName}!`;
-            document.querySelector('#final-screen p:nth-of-type(2)').innerHTML = `With all my love,<br>${yourName}`;
+            document.querySelector('#final-screen p:nth-of-type(2)').innerHTML = `With all my love,${yourName}`;
 
             // Removed `birthdaySongElement` and `songTitleElement` references as they are not needed for Howler.js
             // The Howler.js `backgroundMusic` object is initialized via initSounds()
