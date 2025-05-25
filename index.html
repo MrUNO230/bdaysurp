@@ -153,15 +153,8 @@
         <button onclick="nextSection()" id="cake-next-button" style="display:none;">What's Next?</button>
     </div>
 
-    <div id="message-screen" class="section">
-        <h1>A Little Note For You</h1>
-        <div id="typed-message-container">
-            <p id="typed-message"></p>
-        </div>
-        <button onclick="nextSection()">One More Thing...</button>
-    </div>
+    
 
-    <!-- REMOVED: Song Screen HTML element -->
     <!-- The Howler.js library handles background audio playback directly in JS, no need for a visible HTML audio element -->
 
     <div id="final-screen" class="section"><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
@@ -259,7 +252,7 @@
 
               isoOrigin = p.createVector(p.width/2, p.height/2.2);
 
-              cake.color = p.color(240,220,180); cake.frostingColor = p.color(255,192,203); cake.topFrostingColor = p.color(255,230,235);
+              cake.color = p.color(255,245,247); cake.frostingColor = p.color(255,192,203); cake.topFrostingColor = p.color(255,230,235);
 
               let candleWorldHeight = 1.2, candleRadius = 0.15;
               for (let i=0; i<numCandles; ++i) {
@@ -846,8 +839,7 @@
                 console.log("Setting up Balloon Screen (section 2)");
                 createBalloons(10);
             }
-            if (index === 5) { typeMessage(personalMessage, 'typed-message'); }
-            // No index === 6 check anymore for song screen.
+            
         }
 
         function nextSection() {
