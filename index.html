@@ -157,7 +157,7 @@
 
     <!-- The Howler.js library handles background audio playback directly in JS, no need for a visible HTML audio element -->
 
-    <div id="final-screen" class="section"><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
+    <div id="final-screen" class="section"><div id="particles-js-final" class="particle-background-container"></div><h1>I Love You, [Girlfriend's Name]!</h1><p>I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever. You deserve all the happiness in the world.I hope you have the most wonderful birthday ever.</p><p>With all my love,<br>[Your Name]</p><button onclick="replaySurprise()">Replay the Surprise?</button></div>
 
     <script>
         // Global variable to hold the p5.js instance
@@ -701,6 +701,46 @@
         const songTitle = "Our Special Song"; // RE-ADDED: Song Title
         const balloonPopSoundURL = "button-09.mp3";
         const cheerSoundURL = "applause-01.mp3";
+
+
+        const finalScreenParticlesConfig = {
+            particles: {
+                number: { value: 30, density: { enable: true, area: 800 } }, // Number of hearts
+                color: { value: "#ff0000" }, // This color might tint the image if it's not purely red
+                shape: {
+                    type: "image",
+                    image: {
+                        src: "birthday.png", // *** IMPORTANT: Ensure this path is correct ***
+                        width: 100, // Original width of your heart_mom.png image
+                        height: 100 // Original height of your heart_mom.png image
+                    }
+                },
+                opacity: { value: 0.7, random: true },
+                size: { value: { min: 30, max: 40 }, random: true }, // Display size of the hearts (pixels)
+                links: { enable: false }, // No lines between hearts
+                move: {
+                    enable: true,
+                    speed: 0.5, // How fast they float upwards
+                    direction: "top", // Float upwards
+                    random: true,
+                    straight: false,
+                    outModes: { default: "out" },
+                    attract: { enable: true, rotateX: 600, rotateY: 1200 }
+                }
+            },
+            interactivity: {
+                events: {
+                    onhover: { enable: true, mode: "bubble" }, // Hearts get a bit bigger on hover
+                    onclick: { enable: true, mode: "push" }, // Add more hearts on click
+                    resize: true
+                },
+                modes: {
+                    bubble: { distance: 200, size: 60, duration: 2, opacity: 0.8, speed: 3 },
+                    push: { particles_nb: 2 }
+                }
+            },
+            retina_detect: true
+        };
         // --- END OF CONFIGURATION ---
 
         let currentSection = 0;
@@ -839,7 +879,22 @@
                 console.log("Setting up Balloon Screen (section 2)");
                 createBalloons(10);
             }
+
+
+            const finalScreenIndex = sections.length - 1; // Dynamically find the index of the last section
+            if (index === finalScreenIndex) {
+                console.log("Setting up Final Screen (section " + finalScreenIndex + ") particles (hearts).");
+                tsParticles.load("particles-js-final", finalScreenParticlesConfig);
+            } else {
+                // Optional: Destroy particles from the final screen if navigating away
+                const finalParticlesInstance = tsParticles.dom().find(instance => instance.id === "particles-js-final");
+                if (finalParticlesInstance) {
+                    finalParticlesInstance.destroy();
+                    console.log("Final screen particles instance destroyed.");
+                }
+            }
             
+
         }
 
         function nextSection() {
