@@ -844,9 +844,12 @@
 
         function nextSection() {
             console.log(`nextSection called. currentSection: ${currentSection}`);
-            // Index logic needs to be updated after song screen removal
-            // Old: 0->1->2->3->4->5->6(song)->7(final)
-            // New: 0->1->2->3->4->5->6(final)
+            
+            if (currentSection === 1 && backgroundMusic && !backgroundMusic.playing()) {
+                console.log("User clicked 'Start Your Celebration!' on Welcome Screen. Attempting to play background music.");
+                backgroundMusic.play();
+            }
+
             if (currentSection < sections.length - 1) {
                 currentSection++;
                 showSection(currentSection);
