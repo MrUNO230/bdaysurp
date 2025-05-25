@@ -64,6 +64,10 @@
 
         .swiper-slide {
             background-color: #fffacd; /* Ensure the slide itself has a solid background */
+            display: flex;             /* Make the slide a flex container */
+            align-items: center;       /* Vertically center its direct children (the img) */
+            justify-content: center;   /* Horizontally center its direct children (the img) */
+            height: 100%;              /* Crucial: Make the slide take up 100% of the available height within the Swiper container */
         }
 
         #loading-screen { background-color: #ffc0cb; }
